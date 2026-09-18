@@ -1,0 +1,9 @@
+Outbound URL Guard has been installed.
+
+The following file has been created:
+  - config/packages/nowo_outbound_url_guard.yaml
+
+Inject Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard and pass
+httpClientOptions() to your HTTP client with max_redirects set to 0.
+
+See docs/INSTALLATION.md and docs/USAGE.md.

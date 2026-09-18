@@ -1,0 +1,5 @@
+# Safe defaults: private networks stay blocked, DNS is pinned, metadata is always rejected.
+nowo_outbound_url_guard:
+    allow_private: false
+    resolve_dns: true
+    dns_timeout: 2

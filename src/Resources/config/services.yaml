@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup:
+        arguments:
+            $timeoutSeconds: '%nowo_outbound_url_guard.dns_timeout%'
+
+    Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard:
+        public: true
+        arguments:
+            $allowPrivate: '%nowo_outbound_url_guard.allow_private%'
+            $resolveDns: '%nowo_outbound_url_guard.resolve_dns%'
