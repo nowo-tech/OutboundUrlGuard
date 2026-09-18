@@ -1,13 +1,14 @@
 # Release
 
-No stable tag yet. The first release will be **v1.0.0**.
+Current stable: **v1.0.0** (2026-09-18).
 
 Maintainers: follow this checklist before creating a tag.
 
 ## Pre-release checklist
 
 1. **Update version and docs**
-   - Ensure [CHANGELOG.md](CHANGELOG.md) has an entry for the new version and that `[Unreleased]` is empty or updated.
+   - Ensure [CHANGELOG.md](CHANGELOG.md) has an entry for the new version (for example `[1.0.0] - YYYY-MM-DD`) and that `[Unreleased]` is empty or updated.
+   - Update the compare links at the bottom of [CHANGELOG.md](CHANGELOG.md).
    - Ensure [UPGRADING.md](UPGRADING.md) mentions any behaviour changes.
    - Confirm [SECURITY.md](SECURITY.md) release checklist (12.4.1), including the AI security audit note.
 

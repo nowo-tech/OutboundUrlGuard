@@ -38,7 +38,7 @@ Flex registers the bundle from `type: symfony-bundle`. See [Installation](docs/I
 ## Requirements
 
 - PHP `>=8.2 <8.6`
-- Symfony components `^7.4 || ^8.0` (`symfony/config`, `symfony/dependency-injection`, `symfony/http-kernel`, `symfony/yaml`)
+- Symfony components `^7.4 || ^8.0` (`symfony/config`, `symfony/dependency-injection`, `symfony/http-kernel`, `symfony/process`, `symfony/yaml`)
 
 ## Configuration
 

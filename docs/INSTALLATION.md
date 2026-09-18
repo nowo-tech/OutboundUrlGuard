@@ -3,7 +3,7 @@
 ## Requirements
 
 - PHP `>=8.2 <8.6`
-- Symfony `^7.4 || ^8.0` (`config`, `dependency-injection`, `http-kernel`, `yaml`)
+- Symfony `^7.4 || ^8.0` (`config`, `dependency-injection`, `http-kernel`, `process`, `yaml`)
 
 ## Composer
 

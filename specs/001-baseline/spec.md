@@ -1,7 +1,7 @@
 # Baseline specification — Outbound URL Guard
 
 **Package:** `nowo-tech/outbound-url-guard-bundle`  
-**Status:** Implemented (pre-1.0.0)  
+**Status:** Implemented (1.0.0)  
 **Last updated:** 2026-09-18
 
 ## Product summary

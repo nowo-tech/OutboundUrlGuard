@@ -21,7 +21,7 @@ $guard->inspect($url, allowPrivate: true, resolveDns: false);
 
 ## Timeout hierarchy (FrankenPHP / FPM)
 
-DNS is the only blocking call in this bundle. There is no subprocess and no HTTP client.
+DNS is the only blocking call in this bundle. It runs in a short-lived PHP child process. This bundle does not open an HTTP connection.
 
 | Layer | This package |
 | --- | --- |
