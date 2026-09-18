@@ -71,10 +71,14 @@ jobs:
         run: composer audit --locked --abandoned=ignore
 
       - name: Run tests
+        env:
+          SYMFONY_DEPRECATIONS_HELPER: max[direct]=0
         run: composer test
 
       - name: Run tests with coverage (PHP 8.2 + Symfony 7.4 only)
         if: matrix.php == '8.2' && matrix.symfony == '7.4'
+        env:
+          SYMFONY_DEPRECATIONS_HELPER: max[direct]=0
         run: |
           composer test-coverage
           chmod +x .scripts/coverage-check.sh

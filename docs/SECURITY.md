@@ -74,4 +74,15 @@ Confirm before each tag:
 | No custom cryptography | N/A |
 | No public endpoints | N/A |
 | `dns_timeout` limits resolver wait (DoS) | Required |
-| AI security audit (REQ-SEC-004) recorded for this package | Required on release |
+| AI security audit (REQ-SEC-004) | Pass (good), 2026-09-18. Overall risk Low. No open Critical or High findings. |
+
+## AI security audit
+
+Static review of `src/`, the Flex recipe, and these security docs on **2026-09-18**.
+
+- **Grade:** Pass (good)
+- **Risk:** Low
+- **Method:** Cursor agent static pass (full package)
+- **Residuals:** none in package code. Callers must still set `max_redirects` to 0 and use the DNS pin. That duty is documented above; it is not an open finding in this package.
+
+The monorepo report `BUNDLES_SECURITY_ANALYSIS.md` records the same grade.
