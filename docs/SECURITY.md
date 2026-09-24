@@ -74,6 +74,7 @@ Confirm before each tag:
 | No custom cryptography | N/A |
 | No public endpoints | N/A |
 | `dns_timeout` limits resolver wait (DoS) | Required |
+| FrankenPHP worker (`reset_kernel: false`) audit | Pass, 2026-09-24. See [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md). |
 | AI security audit (REQ-SEC-004) | Pass (good), 2026-09-18. Overall risk Low. No open Critical or High findings. |
 
 ## AI security audit

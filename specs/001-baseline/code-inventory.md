@@ -1,6 +1,6 @@
 # Code inventory — 001-baseline
 
-**Last audited:** 2026-09-18  
+**Last audited:** 2026-09-24  
 **Package:** `nowo-tech/outbound-url-guard-bundle`  
 **Production units:** 10  
 **Mapped:** 10  
@@ -34,14 +34,14 @@ Audit: `find src -type f | sort` must match the rows below.
 
 | File | Requirement |
 | --- | --- |
-| `src/Guard/OutboundUrlGuard.php` | FR-GUARD-001, FR-GUARD-002, FR-GUARD-003, FR-GUARD-004, FR-GUARD-005, FR-GUARD-006 |
+| `src/Guard/OutboundUrlGuard.php` | FR-GUARD-001, FR-GUARD-002, FR-GUARD-003, FR-GUARD-004, FR-GUARD-005, FR-GUARD-006, FR-WORKER-001, FR-WORKER-002 |
 
 ## DNS and network
 
 | File | Requirement |
 | --- | --- |
-| `src/Dns/HostnameDnsLookup.php` | FR-DNS-001 |
-| `src/Network/PrivateNetworkTarget.php` | FR-NET-001 |
+| `src/Dns/HostnameDnsLookup.php` | FR-DNS-001, FR-WORKER-001, FR-WORKER-002, FR-WORKER-003 |
+| `src/Network/PrivateNetworkTarget.php` | FR-NET-001, FR-WORKER-002 |
 
 ## Coverage summary
 

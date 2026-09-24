@@ -1,5 +1,24 @@
 # Upgrading
 
+## From 1.0.0 to 1.0.1
+
+No breaking API or config changes. Defaults stay the same:
+
+| Key | Default |
+| --- | --- |
+| `allow_private` | `false` |
+| `resolve_dns` | `true` |
+| `dns_timeout` | `2` |
+
+What changed for integrators:
+
+- Documented **100% FrankenPHP worker compatibility** when `reset_kernel` is false (no bundle reset hook required). See [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md).
+- Dev dependency / CI: PHPStan enables FrankenPHP **worker-strict** and **hardening** rulesets. Application code is unchanged.
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
 ## From nothing to 1.0.0
 
 First release. There is no previous Packagist version to migrate from.

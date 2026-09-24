@@ -78,6 +78,7 @@ Behavior changes **require** tests under `tests/`.
 | REQ-GIT-001 | `.githooks/`, `.scripts/check-no-cursor-coauthor.sh` | No Cursor co-author trailers |
 | REQ-REL-003 | `.scripts/check-open-prs.sh` | No unresolved open pull requests |
 | REQ-RUNTIME-001 | `dns_timeout`, `HostnameDnsLookup` | Explicit DNS child-process timeout |
+| REQ-RUNTIME-002 | FrankenPHP worker, `reset_kernel: false` | Stateless services; audit in `docs/FRANKENPHP-WORKER-AUDIT.md`; PHPStan worker-strict + hardening |
 | REQ-TEST-003 | `.scripts/coverage-check.sh` | Statement coverage gate |
 
 When scripted behavior changes, update or add the matching `REQ-*` comment.

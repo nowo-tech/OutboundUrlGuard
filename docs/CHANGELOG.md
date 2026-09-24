@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-24
+
+### Added
+
+- FrankenPHP worker audit for `reset_kernel: false`: [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md). Verdict: 100% compatible (no per-request state; DNS bounded by child process).
+- Spec requirements `FR-WORKER-001` … `FR-WORKER-004` for long-lived workers without kernel reset.
+
+### Changed
+
+- PHPStan now includes FrankenPHP `ruleset-worker-strict` and `ruleset-hardening` (in addition to classic + worker) so CI gates worker-safe and hardened code.
+
 ## [1.0.0] - 2026-09-18
 
 ### Added
@@ -24,5 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0

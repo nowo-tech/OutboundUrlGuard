@@ -17,7 +17,7 @@ Symfony bundle that checks an outbound `http` or `https` URL before your app ope
 
 ![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)
 
-This bundle is **FrankenPHP worker mode friendly**.
+This bundle is **FrankenPHP worker mode friendly**, including when `reset_kernel` is false (no per-request state; DNS bounded by `dns_timeout`). See [FrankenPHP worker audit](docs/FRANKENPHP-WORKER-AUDIT.md).
 
 ## Features
 
@@ -73,6 +73,7 @@ Docker service names: `$guard->assertSafe('http://mercure/.well-known/mercure', 
 - [Upgrading](docs/UPGRADING.md)
 - [Release](docs/RELEASE.md)
 - [Security](docs/SECURITY.md)
+- [FrankenPHP worker audit](docs/FRANKENPHP-WORKER-AUDIT.md)
 - [Engram](docs/ENGRAM.md)
 - [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
 - [GitHub Spec Kit](docs/SPEC-KIT.md)

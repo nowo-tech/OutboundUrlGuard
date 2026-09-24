@@ -1,8 +1,8 @@
 # Baseline specification — Outbound URL Guard
 
 **Package:** `nowo-tech/outbound-url-guard-bundle`  
-**Status:** Implemented (1.0.0)  
-**Last updated:** 2026-09-18
+**Status:** Implemented (1.0.1)  
+**Last updated:** 2026-09-24
 
 ## Product summary
 
@@ -81,6 +81,13 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`.
 
 - **FR-DNS-001**: `HostnameDnsLookup` runs `dns_get_record` and `gethostbynamel` in a child PHP process with `dns_timeout` (`setTimeout` and `setIdleTimeout`) and stops the process on expiry. The class stays extensible for tests. The worker does not call `ini_set()`.
 - **FR-NET-001**: `PrivateNetworkTarget` canonicalizes dotted IPv4, IPv6, IPv4-mapped IPv6, and decimal/hex 32-bit hosts before private and metadata checks.
+
+### FrankenPHP worker (`reset_kernel: false`)
+
+- **FR-WORKER-001**: Shared services hold no per-request mutable state. `OutboundUrlGuard` is `readonly`; `HostnameDnsLookup` only stores the immutable timeout. No `kernel.reset` hook is required.
+- **FR-WORKER-002**: No static mutable properties, static locals, `putenv`, persistent `ini_set`, superglobal writes, or request-scoped captures on the decision path.
+- **FR-WORKER-003**: DNS lookups never cache pins on the service. Each call creates a short-lived Process and discards it.
+- **FR-WORKER-004**: PHPStan includes FrankenPHP `ruleset-classic`, `ruleset-worker-strict`, and `ruleset-hardening` with zero errors.
 
 ## Success criteria
 

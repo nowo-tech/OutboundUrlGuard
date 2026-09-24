@@ -31,4 +31,6 @@ DNS is the only blocking call in this bundle. It runs in a short-lived PHP child
 
 This repository does not ship a FrankenPHP demo. Host applications that run the guard inside a worker should keep `dns_timeout` below PHP and the proxy write timeout. Raise those outer deadlines in the same change if you raise `dns_timeout`.
 
+With FrankenPHP worker mode and `reset_kernel: false`, no bundle-specific reset is required: services are immutable and DNS pins are not cached. Details: [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md).
+
 A lookup that returns no address is rejected (`Outbound URL host could not be resolved`). The bundle does not retry.
