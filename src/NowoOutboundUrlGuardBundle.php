@@ -22,6 +22,7 @@ class NowoOutboundUrlGuardBundle extends Bundle
     public function getContainerExtension(): ?ExtensionInterface
     {
         if (null === $this->extension) {
+            // @igor-ignore - Symfony Bundle caches Extension once at boot; not request-scoped state
             $this->extension = new NowoOutboundUrlGuardExtension();
         }
 
