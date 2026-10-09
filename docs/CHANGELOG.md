@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-09
+
+### Dependencies
+
+- `igor-php/igor-php` require-dev constraint bumped to `^0.10.0` (Dependabot); `nowo-tech/phpstan-frankenphp` 1.2.x and `phpstan/phpstan-phpunit` Dependabot bumps.
+- Dev lock refreshed: Symfony 7.4.20, PHPStan 2.3.1, `phpstan/phpstan-symfony` 2.1.0, Rector 2.7.0, PHPUnit 11.5.57, `nowo-tech/phpstan-frankenphp` 1.2.3.
+
+[1.0.3]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.3
+
 ## [1.0.2] - 2026-09-27
 
 ### Added
@@ -17,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Worker safety (Igor):** justified `// @igor-ignore` annotations and/or `ResetInterface` / request-scoped fixes so `make igor` passes on package `src/`.
 
-[1.0.2]: https://github.com/nowo-tech/OutboundUrlGuardBundle/releases/tag/v1.0.2
+[1.0.2]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.2
 
 ## [1.0.1] - 2026-09-24
 
@@ -47,6 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.3...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0
