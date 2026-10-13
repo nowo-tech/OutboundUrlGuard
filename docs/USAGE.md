@@ -24,7 +24,7 @@ if (!$guard->inspect($hubUrl, resolveDns: false)->isValid()) {
 }
 ```
 
-`resolveDns: false` still rejects private IP literals and metadata. It does not look up `mercure` or `php`.
+`resolveDns: false` still rejects private IP literals and metadata literals or names. It does not look up `mercure` or `php`, so it cannot detect a hostname whose DNS answer is a private or metadata address.
 
 ## What stays in the application
 

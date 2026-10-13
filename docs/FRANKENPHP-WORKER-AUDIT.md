@@ -53,7 +53,8 @@ No open findings for worker state leakage or unbounded DNS wait under default an
 
 - **Where:** `src/Dns/HostnameDnsLookup.php` (`runBounded()`).
 - **Worker impact:** a stuck system resolver would otherwise block the PHP worker thread for the OS resolver timeout. Lookups run in a child PHP process bounded by `dns_timeout`; on expiry the child is stopped and the guard fails closed.
-- **Config:** `nowo_outbound_url_guard.dns_timeout` minimum `0.1` (Symfony config tree). Callers should still set HttpClient `timeout` / `max_duration` on the actual request.
+- **Config:** `nowo_outbound_url_guard.dns_timeout` minimum `0.1` (Symfony config tree).
+- **CLI binary:** the child is the PHP CLI found by `PhpExecutableFinder` (or `php_binary`). FrankenPHP's `PHP_BINARY` is the server binary, so it is not used. When no CLI is usable, the lookup runs in-process and the wait is bounded only by the system resolver (`resolv.conf` timeout and attempts); ship a PHP CLI in the image (official FrankenPHP and php-fpm images do) to keep the `dns_timeout` bound. Callers should still set HttpClient `timeout` / `max_duration` on the actual request.
 
 DNS answers are **not** cached across requests: a cached pin could go stale in a long-lived worker.
 

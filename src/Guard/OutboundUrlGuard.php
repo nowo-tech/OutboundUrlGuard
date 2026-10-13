@@ -28,13 +28,19 @@ use const FILTER_VALIDATE_IP;
  * preferred). Leave it false when the host is a Docker service name that must
  * not be looked up.
  *
- * When `$allowPrivate` is true, DNS is skipped: the caller already accepted
- * private answers, so a pin would not add a check.
+ * When `$allowPrivate` is true and `$resolveDns` is true, hostnames are still
+ * resolved: private answers are accepted, but an answer pointing at cloud
+ * metadata is rejected and the first address is pinned so a later lookup cannot
+ * rebind to metadata.
+ *
+ * When `$resolveDns` is false, hostnames are not looked up, so a name whose DNS
+ * points at a metadata address is not detected. Only literal addresses and
+ * well-known metadata host names are checked in that mode.
  */
 final readonly class OutboundUrlGuard
 {
     /**
-     * @param bool              $allowPrivate when true, loopback and RFC1918 are allowed; metadata stays blocked
+     * @param bool              $allowPrivate when true, loopback and RFC1918 are allowed; metadata stays blocked (DNS answers only when resolving)
      * @param bool              $resolveDns   when true, hostnames are resolved and pinned
      * @param HostnameDnsLookup $dns          DNS seam (timeout lives on the lookup)
      */
@@ -85,7 +91,11 @@ final readonly class OutboundUrlGuard
         }
 
         if ($allowPrivate) {
-            return OutboundUrlDecision::valid();
+            if (null !== $canonical || !$resolveDns) {
+                return OutboundUrlDecision::valid();
+            }
+
+            return $this->resolveAndPin($host, true);
         }
 
         if (PrivateNetworkTarget::isBlockedHostName($host)) {
@@ -104,7 +114,7 @@ final readonly class OutboundUrlGuard
             return OutboundUrlDecision::valid();
         }
 
-        return $this->resolveAndPin($host);
+        return $this->resolveAndPin($host, false);
     }
 
     /**
@@ -142,7 +152,13 @@ final readonly class OutboundUrlGuard
         return $this->assertSafe($url, $allowPrivate, $resolveDns)->httpClientOptions();
     }
 
-    private function resolveAndPin(string $host): OutboundUrlDecision
+    /**
+     * Resolves a hostname and pins the first acceptable address (IPv4 preferred).
+     *
+     * @param string $host         lowercase hostname
+     * @param bool   $allowPrivate when true, private answers pass; metadata answers never do
+     */
+    private function resolveAndPin(string $host, bool $allowPrivate): OutboundUrlDecision
     {
         $candidates = [];
 
@@ -175,16 +191,19 @@ final readonly class OutboundUrlGuard
             return OutboundUrlDecision::unsafe('Outbound URL host could not be resolved.');
         }
 
-        $publicIps = [];
+        $acceptedIps = [];
         foreach (array_values(array_unique($candidates)) as $ip) {
-            if (PrivateNetworkTarget::isBlockedIp($ip) || PrivateNetworkTarget::isCloudMetadataIp($ip)) {
+            if (!$allowPrivate && (PrivateNetworkTarget::isBlockedIp($ip) || PrivateNetworkTarget::isCloudMetadataIp($ip))) {
                 return OutboundUrlDecision::unsafe('Outbound URL resolves to a private address.');
             }
-            $publicIps[] = $ip;
+            if (PrivateNetworkTarget::isCloudMetadataIp($ip)) {
+                return OutboundUrlDecision::unsafe('Outbound URL must not target cloud metadata.');
+            }
+            $acceptedIps[] = $ip;
         }
 
-        $pinIp = $publicIps[0];
-        foreach ($publicIps as $ip) {
+        $pinIp = $acceptedIps[0];
+        foreach ($acceptedIps as $ip) {
             if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
                 $pinIp = $ip;
                 break;

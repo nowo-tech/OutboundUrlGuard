@@ -106,15 +106,72 @@ final class OutboundUrlGuardTest extends TestCase
         }
     }
 
-    public function testAllowPrivateSkipsDns(): void
+    public function testAllowPrivateWithoutDnsSkipsLookups(): void
     {
         $dns = $this->createMock(HostnameDnsLookup::class);
         $dns->expects(self::never())->method('dnsGetRecord');
 
-        $guard = new OutboundUrlGuard(allowPrivate: true, dns: $dns);
+        $guard = new OutboundUrlGuard(allowPrivate: true, resolveDns: false, dns: $dns);
 
         self::assertTrue($guard->inspect('http://mercure/hook')->isValid());
         self::assertSame([], $guard->inspect('http://mercure/hook')->httpClientOptions());
+    }
+
+    public function testAllowPrivateStillResolvesAndBlocksMetadataAnswers(): void
+    {
+        $dns = $this->createMock(HostnameDnsLookup::class);
+        $dns->method('dnsGetRecord')->willReturnCallback(
+            static fn (string $host, int $type): array => match ($host) {
+                'mercure' => DNS_A === $type ? [['ip' => '172.18.0.5']] : [],
+                'evil.test' => DNS_A === $type ? [['ip' => '169.254.169.254']] : [],
+                'mixed.test' => DNS_A === $type ? [['ip' => '10.0.0.2'], ['ip' => '100.100.100.200']] : [],
+                'v6meta.test' => DNS_AAAA === $type ? [['ipv6' => 'fe80::1']] : [],
+                default => [],
+            },
+        );
+        $dns->method('hostByNameL')->willReturn(false);
+
+        $guard = new OutboundUrlGuard(allowPrivate: true, dns: $dns);
+
+        self::assertSame('172.18.0.5', $this->pinnedIp($guard->httpClientOptions('http://mercure/hook'), 'mercure'));
+        self::assertSame([], $guard->httpClientOptions('http://127.0.0.1/hook'));
+
+        foreach (['http://evil.test/latest/meta-data', 'http://mixed.test/', 'http://v6meta.test/'] as $url) {
+            $decision = $guard->inspect($url);
+            self::assertSame(OutboundUrlDecision::RESULT_UNSAFE, $decision->result, $url);
+            self::assertSame('Outbound URL must not target cloud metadata.', $decision->message, $url);
+        }
+
+        self::assertSame(OutboundUrlDecision::RESULT_UNSAFE, $guard->inspect('http://missing.test/')->result);
+    }
+
+    public function testBlocksInetAtonSpellingsOfPrivateAndMetadataAddresses(): void
+    {
+        $dns = $this->createMock(HostnameDnsLookup::class);
+        $dns->expects(self::never())->method('dnsGetRecord');
+
+        $strict = new OutboundUrlGuard(resolveDns: false, dns: $dns);
+        foreach ([
+            'http://127.1/hook',
+            'http://0177.0.0.1/hook',
+            'http://0x7f.0.0.1/hook',
+            'http://2130706433/hook',
+            'http://0x7f000001/hook',
+            'http://10.1/hook',
+        ] as $url) {
+            self::assertSame(OutboundUrlDecision::RESULT_UNSAFE, $strict->inspect($url)->result, $url);
+        }
+
+        $permissive = new OutboundUrlGuard(allowPrivate: true, resolveDns: false, dns: $dns);
+        foreach ([
+            'http://169.254.43518/latest/meta-data',
+            'http://0251.0376.0251.0376/latest/meta-data',
+            'http://0xa9.0xfe.0xa9.0xfe/latest/meta-data',
+            'http://169.16689662/latest/meta-data',
+        ] as $url) {
+            self::assertSame(OutboundUrlDecision::RESULT_UNSAFE, $permissive->inspect($url)->result, $url);
+        }
+        self::assertTrue($permissive->inspect('http://127.1/hook')->isValid());
     }
 
     /**

@@ -58,4 +58,43 @@ final class PrivateNetworkTargetTest extends TestCase
         self::assertTrue(PrivateNetworkTarget::isCloudMetadataHost('metadata.google.internal'));
         self::assertFalse(PrivateNetworkTarget::isCloudMetadataHost('mercure'));
     }
+
+    public function testCanonicalIpNormalizesInetAtonForms(): void
+    {
+        foreach ([
+            '127.1' => '127.0.0.1',
+            '127.0.1' => '127.0.0.1',
+            '0177.0.0.1' => '127.0.0.1',
+            '0x7f.0.0.1' => '127.0.0.1',
+            '0X7F.1' => '127.0.0.1',
+            '2130706433' => '127.0.0.1',
+            '017700000001' => '127.0.0.1',
+            '0x7f000001' => '127.0.0.1',
+            '169.254.43518' => '169.254.169.254',
+            '0251.0376.0251.0376' => '169.254.169.254',
+            '0xa9.0xfe.0xa9.0xfe' => '169.254.169.254',
+            '00.0x0.0.0' => '0.0.0.0',
+            '0x00000000a9fea9fe' => '169.254.169.254',
+        ] as $input => $expected) {
+            self::assertSame($expected, PrivateNetworkTarget::canonicalIp((string) $input), (string) $input);
+        }
+
+        self::assertTrue(PrivateNetworkTarget::isCloudMetadataIp('169.254.43518'));
+        self::assertTrue(PrivateNetworkTarget::isBlockedIp((string) PrivateNetworkTarget::canonicalIp('127.1')));
+
+        foreach ([
+            '1.2.3.4.5',
+            '1..2',
+            '256.1.1.1',
+            '1.256.1.1',
+            '1.2.65536',
+            '08.0.0.1',
+            '0x.1',
+            '037777777777777',
+            '1.2.3.example',
+            'example.123',
+        ] as $input) {
+            self::assertNull(PrivateNetworkTarget::canonicalIp($input), $input);
+        }
+    }
 }

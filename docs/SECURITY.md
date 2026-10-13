@@ -7,7 +7,7 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 ## Attack surface
 
 - The URL string passed to `OutboundUrlGuard` (often a webhook or callback chosen by a user).
-- Bundle config: `allow_private`, `resolve_dns`, `dns_timeout`.
+- Bundle config: `allow_private`, `resolve_dns`, `dns_timeout`, `php_binary`.
 - DNS answers for hostnames when `resolve_dns` is true.
 - No HTTP routes, forms, CLI commands, or admin UI.
 
@@ -16,7 +16,7 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 | Threat | Risk |
 | --- | --- |
 | SSRF to loopback, RFC1918, or link-local | High if a user-controlled URL is fetched |
-| Cloud metadata (`169.254.169.254`, Alibaba `100.100.100.200`, `fe80::/10`) including decimal, hex, and IPv4-mapped forms | High |
+| Cloud metadata (`169.254.169.254`, Alibaba `100.100.100.200`, `fe80::/10`) including decimal, octal, hex, shorthand (`169.254.43518`), and IPv4-mapped forms | High |
 | DNS rebinding after a check | High if the TCP connection is not pinned |
 | Redirect to a second host | High if `max_redirects` is left at the client default |
 | Resolver hang | Medium under FrankenPHP / FPM (one stuck DNS call pins a worker) |
@@ -26,16 +26,18 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 
 - Schemes other than `http` and `https` are invalid.
 - Private, reserved, and blocked hostnames are rejected unless `allow_private` is true.
-- Cloud metadata stays blocked in both modes.
+- IPv4 literals are normalized the way curl and `inet_aton()` read them (`127.1`, `0177.0.0.1`, `0x7f.0.0.1`, `2130706433`) before they are classified.
+- Cloud metadata literals and names stay blocked in both modes. With `resolve_dns: true`, DNS answers pointing at metadata are rejected in both modes too; with `allow_private: true` the host is still resolved and the first answer pinned.
 - DNS answers that include any private, reserved, or metadata address fail closed. A public answer is pinned (IPv4 preferred) and returned as HttpClient `resolve`.
-- `dns_timeout` (default 2 seconds) stops the DNS child process when the deadline expires. The worker does not call `ini_set()`.
+- `dns_timeout` (default 2 seconds) stops the DNS child process when the deadline expires. The worker does not call `ini_set()`. The child is the PHP CLI found by `PhpExecutableFinder` (or `php_binary`); when none is usable, the lookup runs in-process and is bounded only by the system resolver timeouts.
 - Defaults are deny-private and resolve-dns. Unknown config keys fail container compilation.
 
 ## What the caller must still do
 
 - Pass `max_redirects: 0` (or re-check every redirect). The pin applies to the first host only.
 - Do not enable `allow_private` for URLs chosen by untrusted users.
-- Treat `allow_private: true` as an operator opt-in. It skips DNS, so a public hostname is not pinned in that mode.
+- Treat `allow_private: true` as an operator opt-in.
+- With `resolve_dns: false` hostnames are not looked up, so a hostname whose DNS answer is a metadata or private address is **not** detected. Use it only for trusted names (Docker service names) and keep the HTTP client from reaching metadata at the network layer.
 - Set HTTP connect/total timeouts and a response size limit on the HTTP client. This bundle does not open the connection.
 - Keep PHP `max_execution_time` and the reverse-proxy write timeout strictly above `dns_timeout`.
 

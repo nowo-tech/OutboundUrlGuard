@@ -21,6 +21,7 @@ final class NowoOutboundUrlGuardExtensionTest extends TestCase
         self::assertFalse($container->getParameter('nowo_outbound_url_guard.allow_private'));
         self::assertTrue($container->getParameter('nowo_outbound_url_guard.resolve_dns'));
         self::assertSame(2.0, $container->getParameter('nowo_outbound_url_guard.dns_timeout'));
+        self::assertNull($container->getParameter('nowo_outbound_url_guard.php_binary'));
 
         $container->compile();
         $guard = $container->get(OutboundUrlGuard::class);

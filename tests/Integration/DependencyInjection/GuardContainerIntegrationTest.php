@@ -17,6 +17,7 @@ final class GuardContainerIntegrationTest extends TestCase
         $container = new ContainerBuilder();
         (new NowoOutboundUrlGuardExtension())->load([[
             'dns_timeout' => 1.5,
+            'php_binary' => '/usr/sbin/php-fpm',
         ]], $container);
         $container->getDefinition(HostnameDnsLookup::class)->setPublic(true);
         $container->compile();
@@ -27,6 +28,7 @@ final class GuardContainerIntegrationTest extends TestCase
         self::assertInstanceOf(HostnameDnsLookup::class, $lookup);
         self::assertInstanceOf(OutboundUrlGuard::class, $guard);
         self::assertSame(1.5, $lookup->timeoutSeconds());
+        self::assertSame('/usr/sbin/php-fpm', $lookup->phpBinary());
         self::assertFalse($guard->inspect('http://169.254.169.254/latest/meta-data', allowPrivate: true)->isValid());
     }
 }

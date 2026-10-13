@@ -30,6 +30,7 @@ final class NowoOutboundUrlGuardExtension extends Extension
         $container->setParameter(Configuration::ALIAS.'.allow_private', $config['allow_private']);
         $container->setParameter(Configuration::ALIAS.'.resolve_dns', $config['resolve_dns']);
         $container->setParameter(Configuration::ALIAS.'.dns_timeout', $config['dns_timeout']);
+        $container->setParameter(Configuration::ALIAS.'.php_binary', $config['php_binary']);
     }
 
     /**

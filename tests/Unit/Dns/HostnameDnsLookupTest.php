@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\OutboundUrlGuardBundle\Tests\Unit\Dns;
 
+use Closure;
 use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup;
 use PHPUnit\Framework\TestCase;
 
@@ -17,8 +18,50 @@ final class HostnameDnsLookupTest extends TestCase
         $lookup = new HostnameDnsLookup();
 
         self::assertSame(2.0, $lookup->timeoutSeconds());
+        self::assertNotNull($lookup->phpBinary());
         self::assertNotFalse($lookup->dnsGetRecord('localhost', DNS_A));
         self::assertNotFalse($lookup->hostByNameL('localhost'));
+    }
+
+    /**
+     * Under php-fpm or FrankenPHP, PHP_BINARY is the server binary and rejects `-r`.
+     * Lookups must fall back in-process instead of reporting every host as unresolved.
+     */
+    public function testNonCliBinaryFallsBackToInProcessLookups(): void
+    {
+        foreach (['/bin/false', '/nonexistent/sbin/php-fpm'] as $binary) {
+            $lookup = new HostnameDnsLookup(2.0, $binary);
+
+            self::assertSame($binary, $lookup->phpBinary());
+            self::assertNotFalse($lookup->dnsGetRecord('localhost', DNS_A), $binary);
+            self::assertContains('127.0.0.1', (array) $lookup->hostByNameL('localhost'), $binary);
+        }
+    }
+
+    public function testEmptyBinaryResolvesInProcess(): void
+    {
+        $lookup = new HostnameDnsLookup(2.0, '');
+
+        self::assertNull($lookup->phpBinary());
+        self::assertContains('127.0.0.1', (array) $lookup->hostByNameL('localhost'));
+    }
+
+    public function testStuckChildIsNotRetriedInProcess(): void
+    {
+        $script = tempnam(sys_get_temp_dir(), 'dns-stuck-');
+        self::assertIsString($script);
+        file_put_contents($script, "#!/bin/sh\nsleep 5\n");
+        chmod($script, 0o755);
+
+        try {
+            $lookup = new HostnameDnsLookup(0.3, $script);
+            $started = microtime(true);
+
+            self::assertFalse($lookup->hostByNameL('localhost'));
+            self::assertLessThan(2.0, microtime(true) - $started);
+        } finally {
+            unlink($script);
+        }
     }
 
     public function testChildProcessIsStoppedWhenTheDeadlineExpires(): void
@@ -33,35 +76,23 @@ final class HostnameDnsLookupTest extends TestCase
 
     public function testDecodeRejectsNonListsAndSkipsBlankAddresses(): void
     {
-        $invalid = new class extends HostnameDnsLookup {
-            public ?string $raw = '123';
-
-            public function runBounded(array $command): ?string
-            {
-                return $this->raw;
-            }
-        };
-        self::assertFalse($invalid->dnsGetRecord('example.test', DNS_A));
-        self::assertFalse($invalid->hostByNameL('example.test'));
-
-        $empty = new class extends HostnameDnsLookup {
+        $fake = new class extends HostnameDnsLookup {
             public ?string $raw = null;
 
-            public function runBounded(array $command): ?string
+            protected function lookupOutput(string $code, array $args, Closure $inProcess): ?string
             {
                 return $this->raw;
             }
         };
-        self::assertFalse($empty->dnsGetRecord('example.test', DNS_A));
 
-        $mixed = new class extends HostnameDnsLookup {
-            public ?string $raw = '["", 1, "127.0.0.1"]';
+        $fake->raw = '123';
+        self::assertFalse($fake->dnsGetRecord('example.test', DNS_A));
+        self::assertFalse($fake->hostByNameL('example.test'));
 
-            public function runBounded(array $command): ?string
-            {
-                return $this->raw;
-            }
-        };
-        self::assertSame(['127.0.0.1'], $mixed->hostByNameL('example.test'));
+        $fake->raw = null;
+        self::assertFalse($fake->dnsGetRecord('example.test', DNS_A));
+
+        $fake->raw = '["", 1, "127.0.0.1"]';
+        self::assertSame(['127.0.0.1'], $fake->hostByNameL('example.test'));
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\OutboundUrlGuardBundle\Network;
 
+use function count;
 use function is_string;
 use function ord;
 use function strlen;
@@ -18,8 +19,10 @@ use const FILTER_VALIDATE_IP;
  * Private, reserved, and cloud-metadata checks shared by every outbound URL policy.
  *
  * 100.64.0.0/10 is not a PHP private range, so Alibaba metadata 100.100.100.200 is
- * matched explicitly. Decimal and hex 32-bit hosts (2852039166, 0xa9fea9fe) and
- * IPv4-mapped IPv6 are reduced to a canonical address before the check.
+ * matched explicitly. Every IPv4 spelling curl accepts (inet_aton style: decimal,
+ * octal, or hex parts, shorthand such as 127.1, 32-bit integers such as
+ * 2852039166 or 0xa9fea9fe) and IPv4-mapped IPv6 are reduced to a canonical
+ * dotted address before the check.
  */
 final class PrivateNetworkTarget
 {
@@ -101,8 +104,9 @@ final class PrivateNetworkTarget
     }
 
     /**
-     * Dotted IPv4, IPv6, the IPv4 embedded in an IPv4-mapped address, or a
-     * decimal / hex 32-bit host. Null when the value is a hostname.
+     * Dotted IPv4, IPv6, the IPv4 embedded in an IPv4-mapped address, or an
+     * inet_aton-style IPv4 (127.1, 0177.0.0.1, 0x7f.0.0.1, 2130706433). Null when
+     * the value is a hostname.
      *
      * @param string $value host or address literal
      */
@@ -128,32 +132,87 @@ final class PrivateNetworkTarget
             return $value;
         }
 
-        return self::ipv4FromIntegerHost($value);
+        return self::ipv4FromInetAton($value);
     }
 
-    private static function ipv4FromIntegerHost(string $value): ?string
+    /**
+     * inet_aton() / WHATWG IPv4 forms that curl and browsers accept: one to four
+     * dot-separated parts, each decimal, octal (leading 0), or hex (0x). The last
+     * part fills the remaining bytes (127.1, 0177.0.0.1, 0x7f.0.0.1, 2130706433).
+     */
+    private static function ipv4FromInetAton(string $value): ?string
     {
-        if (str_starts_with($value, '0x')) {
-            $hex = substr($value, 2);
-            if ('' === $hex || strlen($hex) > 8 || !ctype_xdigit($hex)) {
+        $parts = explode('.', $value);
+        $count = count($parts);
+        if ($count > 4) {
+            return null;
+        }
+
+        $numbers = [];
+        foreach ($parts as $part) {
+            $number = self::inetAtonPart($part);
+            if (null === $number) {
                 return null;
             }
-            $number = hexdec($hex);
-        } elseif (ctype_digit($value)) {
-            if (strlen($value) > 10) {
+            $numbers[] = $number;
+        }
+
+        $address = (int) array_pop($numbers);
+        if ($address > (0xFFFFFFFF >> (8 * ($count - 1)))) {
+            return null;
+        }
+
+        $shift = 24;
+        foreach ($numbers as $number) {
+            if ($number > 0xFF) {
                 return null;
             }
-            $number = (int) $value;
+            $address |= $number << $shift;
+            $shift -= 8;
+        }
+
+        $ip = long2ip($address);
+
+        return is_string($ip) ? $ip : null;
+    }
+
+    /**
+     * One inet_aton() part as an integer, or null when it is not numeric or exceeds 32 bits.
+     */
+    private static function inetAtonPart(string $part): ?int
+    {
+        if (str_starts_with($part, '0x')) {
+            $digits = substr($part, 2);
+            if ('' === $digits || !ctype_xdigit($digits)) {
+                return null;
+            }
+            $base = 16;
+        } elseif (ctype_digit($part)) {
+            $digits = $part;
+            $base = 10;
+            if (strlen($part) > 1 && '0' === $part[0]) {
+                $digits = substr($part, 1);
+                $base = 8;
+                if (1 === preg_match('/[89]/', $digits)) {
+                    return null;
+                }
+            }
         } else {
             return null;
         }
 
-        if ($number < 0 || $number > 0xFFFFFFFF) {
+        $digits = ltrim($digits, '0');
+        if ('' === $digits) {
+            return 0;
+        }
+
+        // 0xFFFFFFFF is 8 hex, 10 decimal, or 11 octal digits.
+        if (strlen($digits) > [16 => 8, 10 => 10, 8 => 11][$base]) {
             return null;
         }
 
-        $ip = long2ip((int) $number);
+        $number = (int) base_convert($digits, $base, 10);
 
-        return is_string($ip) ? $ip : null;
+        return $number > 0xFFFFFFFF ? null : $number;
     }
 }

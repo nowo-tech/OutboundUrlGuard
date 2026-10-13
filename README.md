@@ -23,7 +23,7 @@ This bundle is **FrankenPHP worker mode friendly**, including when `reset_kernel
 
 - Rejects schemes other than `http` and `https`.
 - Blocks loopback, RFC1918, link-local, unique-local, and other addresses PHP marks private or reserved.
-- Blocks cloud metadata even when `allow_private` is true, including decimal, hex, and IPv4-mapped forms.
+- Blocks cloud metadata even when `allow_private` is true, including decimal, octal, hex, shorthand (`127.1`-style), and IPv4-mapped forms. Hostnames resolving to metadata are blocked when `resolve_dns` is true.
 - Optional DNS resolution with an HttpClient `resolve` pin (IPv4 preferred) and a configurable socket timeout.
 - Does not open the HTTP connection. Callers still set TLS, timeouts, and `max_redirects: 0`.
 
@@ -47,6 +47,7 @@ nowo_outbound_url_guard:
     allow_private: false
     resolve_dns: true
     dns_timeout: 2.0
+    php_binary: ~ # auto-detect the PHP CLI for bounded DNS lookups
 ```
 
 Full key list: [Configuration](docs/CONFIGURATION.md).

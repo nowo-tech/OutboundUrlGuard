@@ -40,6 +40,10 @@ final class Configuration implements ConfigurationInterface
                     ->min(0.1)
                     ->defaultValue(2.0)
                 ->end()
+                ->scalarNode('php_binary')
+                    ->info('PHP CLI used for the bounded DNS child process. Null auto-detects it (PHP_BINARY is not the CLI under php-fpm or FrankenPHP). An empty string, or no CLI found, resolves in-process without the dns_timeout bound.')
+                    ->defaultNull()
+                ->end()
             ->end();
 
         return $treeBuilder;

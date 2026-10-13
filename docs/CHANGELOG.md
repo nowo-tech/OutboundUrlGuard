@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- IPv4 literals in every form curl accepts (`127.1`, `0177.0.0.1`, `0x7f.0.0.1`, `169.254.43518`, `2130706433`) are normalized before classification, so they no longer bypass the private-network and cloud-metadata checks.
+- With `allow_private: true` and `resolve_dns: true`, hostnames are now resolved: answers pointing at cloud metadata are rejected and the first answer is pinned. Previously DNS was skipped in that mode, so a hostname resolving to `169.254.169.254` passed.
+
+### Fixed
+
+- DNS lookups no longer fail under php-fpm or FrankenPHP: the child process uses the PHP CLI found by `PhpExecutableFinder` instead of `PHP_BINARY` (the server binary there), and falls back to an in-process lookup when no CLI is usable. Previously every hostname was reported as "could not be resolved" with the default `resolve_dns: true`.
+
+### Changed
+
+- New `php_binary` option (default `null` = auto-detect; `''` = always resolve in-process). In-process lookups are bounded by the system resolver timeouts, not `dns_timeout`.
+- Docs: `resolve_dns: false` cannot detect hostnames that resolve to metadata or private addresses; the limitation is now documented.
+
 ## [1.0.4] - 2026-10-13
 
 ### Changed
