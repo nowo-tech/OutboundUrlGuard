@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## To 1.1.0
+
+From **1.0.4** — DNS lookups work under FPM/FrankenPHP; metadata answers blocked with allow_private; inet_aton IPv4 forms normalized.
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
+- DNS lookups no longer depend on `PHP_BINARY` (which is not the CLI under FPM/FrankenPHP); new `php_binary` option (`null` = auto-detect, `''` = always in-process).
+- With `allow_private: true` and `resolve_dns: true`, hostnames are now resolved and pinned: unresolvable names (previously accepted) and names resolving to cloud metadata are rejected. Use `resolve_dns: false` for the old no-lookup behaviour (which cannot detect metadata answers).
+- Shorthand/octal/hex/decimal IPv4 literals (`127.1`, `0177.0.0.1`, `0x7f.0.0.1`, `2130706433`) are now classified as private/metadata instead of passing.
+
 ## To 1.0.4
 
 From **1.0.3** — dependency refresh and repository maintenance.

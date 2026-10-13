@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-13
+
 ### Security
 
 - IPv4 literals in every form curl accepts (`127.1`, `0177.0.0.1`, `0x7f.0.0.1`, `169.254.43518`, `2130706433`) are normalized before classification, so they no longer bypass the private-network and cloud-metadata checks.
@@ -20,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New `php_binary` option (default `null` = auto-detect; `''` = always resolve in-process). In-process lookups are bounded by the system resolver timeouts, not `dns_timeout`.
 - Docs: `resolve_dns: false` cannot detect hostnames that resolve to metadata or private addresses; the limitation is now documented.
+
+[1.1.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.1.0
 
 ## [1.0.4] - 2026-10-13
 
@@ -78,6 +82,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.1.0...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0
