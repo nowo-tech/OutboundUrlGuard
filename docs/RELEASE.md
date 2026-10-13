@@ -1,6 +1,6 @@
 # Release
 
-Current stable: **v1.0.1** (2026-09-24).
+Current stable: **v1.2.0** (2026-10-13). Adds the runtime private-URL switch (`allow_private_resolver`, `RuntimeOutboundUrlGuard`); see [UPGRADING.md](UPGRADING.md#to-120).
 
 Maintainers: follow this checklist before creating a tag.
 
@@ -37,8 +37,8 @@ Maintainers: follow this checklist before creating a tag.
 5. **Create an annotated tag** after at least one commit:
 
    ```bash
-   git tag -a v1.0.1 -m "Release v1.0.1"
-   git push origin v1.0.1
+   git tag -a v1.2.0 -m "Release v1.2.0: ..."
+   git push origin v1.2.0
    ```
 
 6. **GitHub release**

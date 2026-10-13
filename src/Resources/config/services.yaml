@@ -13,3 +13,18 @@ services:
         arguments:
             $allowPrivate: '%nowo_outbound_url_guard.allow_private%'
             $resolveDns: '%nowo_outbound_url_guard.resolve_dns%'
+
+    # Default resolver: the static allow_private value. The extension points the
+    # nowo_outbound_url_guard.allow_private_resolver alias at allow_private_resolver when set.
+    Nowo\OutboundUrlGuardBundle\Guard\ConfiguredAllowPrivateResolver:
+        arguments:
+            $allowPrivate: '%nowo_outbound_url_guard.allow_private%'
+
+    Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuardFactory:
+        public: true
+        arguments:
+            $allowPrivateResolver: '@nowo_outbound_url_guard.allow_private_resolver'
+            $resolveDns: '%nowo_outbound_url_guard.resolve_dns%'
+
+    Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard:
+        public: true

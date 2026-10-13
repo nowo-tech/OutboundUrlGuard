@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 1.2.0](#to-120)
 - [To 1.1.0](#to-110)
 - [To 1.0.4](#to-104)
 - [To 1.0.3](#to-103)
@@ -11,6 +12,17 @@
 - [From nothing to 1.0.0](#from-nothing-to-100)
 
 ## Unreleased
+
+## To 1.2.0
+
+From **1.1.0** — runtime private-URL toggle (`AllowPrivateResolverInterface`, `OutboundUrlGuardFactory`, `RuntimeOutboundUrlGuard`).
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
+- No breaking changes. `OutboundUrlGuard` and existing config behave as before.
+- Optional: if your app wraps the guard to read "allow private URLs" from a setting, implement `AllowPrivateResolverInterface` on that settings service, set `nowo_outbound_url_guard.allow_private_resolver: App\Settings\YourService`, inject `RuntimeOutboundUrlGuard`, and delete the wrapper. `assertSafeHttpUrl($url)` becomes `assertSafe($url)` and `httpClientOptionsForUrl($url)` becomes `httpClientOptions($url)` (both still throw `UnsafeOutboundUrlException`, an `InvalidArgumentException`).
 
 ## To 1.1.0
 

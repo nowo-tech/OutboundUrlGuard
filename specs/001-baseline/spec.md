@@ -8,7 +8,7 @@
 
 Before an application opens an outbound `http` or `https` URL, this bundle rejects private networks and cloud metadata. Hostnames can be resolved once and pinned so a later DNS answer cannot steer the TCP connection. The bundle does not send the request.
 
-Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`.
+Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtime private-URL switch: `RuntimeOutboundUrlGuard` (see [002-runtime-allow-private](../002-runtime-allow-private/spec.md)).
 
 ## User scenarios
 

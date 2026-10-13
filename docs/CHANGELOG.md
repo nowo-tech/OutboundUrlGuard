@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.2.0] - 2026-10-13](#120---2026-10-13)
 - [[1.1.0] - 2026-10-13](#110---2026-10-13)
 - [[1.0.4] - 2026-10-13](#104---2026-10-13)
 - [[1.0.3] - 2026-10-09](#103---2026-10-09)
@@ -16,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-09-18](#100---2026-09-18)
 
 ## [Unreleased]
+
+## [1.2.0] - 2026-10-13
+
+### Added
+
+- `AllowPrivateResolverInterface` (`allowPrivate(): bool`) for a runtime "allow private URLs" switch, such as an operator setting.
+- `OutboundUrlGuardFactory::create(): OutboundUrlGuard` reads the resolver on every call and reuses the shared `HostnameDnsLookup` service and `resolve_dns`.
+- `RuntimeOutboundUrlGuard` service: `inspect()`, `assertSafe()` and `httpClientOptions()` with the guard's semantics, `allowPrivate` taken from the resolver on every call. Cloud metadata stays blocked whatever the resolver returns.
+- Config `allow_private_resolver` (service id, default `null` = the static `allow_private` value). Default resolver: `ConfiguredAllowPrivateResolver`.
+
+### Changed
+
+- `OutboundUrlGuard` is unchanged and keeps the compiled `allow_private` value.
+- Development: dev lock refreshed (`nowo-tech/phpstan-frankenphp` 1.3.0); Rector `RecastingRemovalRector` cleanup in `PrivateNetworkTarget` (no behaviour change).
+
+[1.2.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.2.0
 
 ## [1.1.0] - 2026-10-13
 

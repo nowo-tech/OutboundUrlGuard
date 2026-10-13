@@ -1,6 +1,6 @@
 # Usage
 
-Register the bundle (Flex does this from `type: symfony-bundle`). Inject `Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard`.
+Register the bundle (Flex does this from `type: symfony-bundle`). Inject `Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard` (static `allow_private`) or `RuntimeOutboundUrlGuard` (`allow_private` read from a resolver on every call).
 
 ## Webhooks and other public callbacks
 
@@ -26,6 +26,19 @@ if (!$guard->inspect($hubUrl, resolveDns: false)->isValid()) {
 
 `resolveDns: false` still rejects private IP literals and metadata literals or names. It does not look up `mercure` or `php`, so it cannot detect a hostname whose DNS answer is a private or metadata address.
 
+## Runtime private-URL switch
+
+Configure `allow_private_resolver` (see [Configuration](CONFIGURATION.md#runtime-private-url-switch)) and inject `Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard`:
+
+```php
+$options = $runtimeGuard->httpClientOptions($storedUrl); // reads allowPrivate() now
+$options['max_redirects'] = 0;
+
+$runtimeGuard->assertSafe($hubUrl, resolveDns: false);
+```
+
+`RuntimeOutboundUrlGuard` has the same `inspect()`, `assertSafe()` and `httpClientOptions()` as `OutboundUrlGuard`, except `allowPrivate` comes from the resolver on every call (only `resolveDns` can be overridden). When you need the plain guard, call `OutboundUrlGuardFactory::create()` per check instead of keeping the returned instance. Cloud metadata stays blocked whatever the resolver returns.
+
 ## What stays in the application
 
-The bundle does not read your settings store. Pass `allowPrivate: true` only when an operator has opted in. It does not send the request.
+The bundle does not read your settings store: expose it through `AllowPrivateResolverInterface`, or pass `allowPrivate: true` only when an operator has opted in. It does not send the request.

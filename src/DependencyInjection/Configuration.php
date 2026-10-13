@@ -7,6 +7,8 @@ namespace Nowo\OutboundUrlGuardBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+use function is_string;
+
 /**
  * Defaults for the registered OutboundUrlGuard. Each call can still override them.
  *
@@ -30,6 +32,14 @@ final class Configuration implements ConfigurationInterface
                 ->booleanNode('allow_private')
                     ->info('When true, loopback, RFC1918, and blocked hostnames are allowed. Cloud metadata stays blocked.')
                     ->defaultFalse()
+                ->end()
+                ->scalarNode('allow_private_resolver')
+                    ->info('Service id of an AllowPrivateResolverInterface read on every OutboundUrlGuardFactory / RuntimeOutboundUrlGuard call. Null uses the static allow_private value. Cloud metadata stays blocked whatever it returns.')
+                    ->defaultNull()
+                    ->validate()
+                        ->ifTrue(static fn (mixed $v): bool => null !== $v && (!is_string($v) || '' === ltrim($v, '@')))
+                        ->thenInvalid('allow_private_resolver must be a non-empty service id or null, got %s.')
+                    ->end()
                 ->end()
                 ->booleanNode('resolve_dns')
                     ->info('When true, hostnames are resolved and the first public address is returned as an HttpClient resolve pin. Set false for Docker service names.')

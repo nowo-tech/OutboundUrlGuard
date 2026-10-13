@@ -157,7 +157,7 @@ final class PrivateNetworkTarget
             $numbers[] = $number;
         }
 
-        $address = (int) array_pop($numbers);
+        $address = array_pop($numbers);
         if ($address > (0xFFFFFFFF >> (8 * ($count - 1)))) {
             return null;
         }

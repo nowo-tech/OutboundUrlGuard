@@ -35,6 +35,9 @@ Audit: `find src -type f | sort` must match the rows below.
 | File | Requirement |
 | --- | --- |
 | `src/Guard/OutboundUrlGuard.php` | FR-GUARD-001, FR-GUARD-002, FR-GUARD-003, FR-GUARD-004, FR-GUARD-005, FR-GUARD-006, FR-WORKER-001, FR-WORKER-002 |
+| `src/Guard/AllowPrivateResolverInterface.php`, `src/Guard/ConfiguredAllowPrivateResolver.php` | 002 FR-RES-001, FR-RES-002 |
+| `src/Guard/OutboundUrlGuardFactory.php` | 002 FR-RES-003 |
+| `src/Guard/RuntimeOutboundUrlGuard.php` | 002 FR-RES-004 |
 
 ## DNS and network
 

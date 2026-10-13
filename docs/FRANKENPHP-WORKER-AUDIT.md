@@ -23,7 +23,7 @@ A bundle that is safe under **B** is safe under **A**, under classic FrankenPHP,
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Mutable state in shared services | ✅ | `OutboundUrlGuard` is `final readonly`; `HostnameDnsLookup` only holds immutable `timeoutSeconds` |
+| Mutable state in shared services | ✅ | `OutboundUrlGuard`, `OutboundUrlGuardFactory`, `RuntimeOutboundUrlGuard` and `ConfiguredAllowPrivateResolver` are `final readonly`; `HostnameDnsLookup` only holds immutable `timeoutSeconds`. A host `allow_private_resolver` is read on every call (no bundle-side cache) |
 | Static properties / `static` locals | ✅ | `PrivateNetworkTarget` exposes pure static methods only; no static properties |
 | `ResetInterface` / `kernel.reset` coverage | ✅ N/A | Nothing to reset between requests |
 | Request / user / locale captured in services | ✅ | Everything is passed as method arguments |

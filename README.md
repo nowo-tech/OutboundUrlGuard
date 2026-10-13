@@ -24,6 +24,7 @@ This bundle is **FrankenPHP worker mode friendly**, including when `reset_kernel
 - Rejects schemes other than `http` and `https`.
 - Blocks loopback, RFC1918, link-local, unique-local, and other addresses PHP marks private or reserved.
 - Blocks cloud metadata even when `allow_private` is true, including decimal, octal, hex, shorthand (`127.1`-style), and IPv4-mapped forms. Hostnames resolving to metadata are blocked when `resolve_dns` is true.
+- Optional runtime private-URL switch: `allow_private_resolver` points at your `AllowPrivateResolverInterface` service, read on every `RuntimeOutboundUrlGuard` call.
 - Optional DNS resolution with an HttpClient `resolve` pin (IPv4 preferred) and a configurable socket timeout.
 - Does not open the HTTP connection. Callers still set TLS, timeouts, and `max_redirects: 0`.
 
@@ -45,6 +46,7 @@ Flex registers the bundle from `type: symfony-bundle`. See [Installation](docs/I
 ```yaml
 nowo_outbound_url_guard:
     allow_private: false
+    allow_private_resolver: ~ # service id read on every RuntimeOutboundUrlGuard call
     resolve_dns: true
     dns_timeout: 2.0
     php_binary: ~ # auto-detect the PHP CLI for bounded DNS lookups
@@ -60,6 +62,8 @@ use Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard;
 $options = $guard->httpClientOptions($url);
 $options['max_redirects'] = 0;
 ```
+
+Operator-controlled private URLs: implement `AllowPrivateResolverInterface`, set `allow_private_resolver`, inject `RuntimeOutboundUrlGuard` (same methods).
 
 Docker service names: `$guard->assertSafe('http://mercure/.well-known/mercure', resolveDns: false);`
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\OutboundUrlGuardBundle\DependencyInjection;
 
+use Nowo\OutboundUrlGuardBundle\Guard\ConfiguredAllowPrivateResolver;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -15,6 +17,11 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 final class NowoOutboundUrlGuardExtension extends Extension
 {
+    /**
+     * Private alias that the factory receives: the configured resolver, or the static default.
+     */
+    public const ALLOW_PRIVATE_RESOLVER_ALIAS = Configuration::ALIAS.'.allow_private_resolver';
+
     /**
      * Loads services and publishes the safe defaults as container parameters.
      *
@@ -31,6 +38,11 @@ final class NowoOutboundUrlGuardExtension extends Extension
         $container->setParameter(Configuration::ALIAS.'.resolve_dns', $config['resolve_dns']);
         $container->setParameter(Configuration::ALIAS.'.dns_timeout', $config['dns_timeout']);
         $container->setParameter(Configuration::ALIAS.'.php_binary', $config['php_binary']);
+
+        $resolverId = null === $config['allow_private_resolver']
+            ? ConfiguredAllowPrivateResolver::class
+            : ltrim((string) $config['allow_private_resolver'], '@');
+        $container->setAlias(self::ALLOW_PRIVATE_RESOLVER_ALIAS, new Alias($resolverId, false));
     }
 
     /**
