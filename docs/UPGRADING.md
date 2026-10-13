@@ -1,7 +1,16 @@
 # Upgrading
 
-
 ## Unreleased
+
+## To 1.0.4
+
+From **1.0.3** — dependency refresh and repository maintenance.
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
+- No breaking changes. No application upgrade steps.
 
 ## To 1.0.3
 

@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-10-13
+
 ### Changed
 
 - Development: `composer.json` pins `config.platform.php` to 8.2.0 so the committed lock stays installable on the minimum PHP; CI overrides the platform per matrix cell.
+
+[1.0.4]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.4
 
 ## [1.0.3] - 2026-10-09
 
@@ -60,6 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.0.4...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0
