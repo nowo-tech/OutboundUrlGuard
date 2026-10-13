@@ -1,5 +1,15 @@
 # Upgrading
 
+## Table of contents
+
+- [Unreleased](#unreleased)
+- [To 1.1.0](#to-110)
+- [To 1.0.4](#to-104)
+- [To 1.0.3](#to-103)
+- [To 1.0.2](#to-102)
+- [From 1.0.0 to 1.0.1](#from-100-to-101)
+- [From nothing to 1.0.0](#from-nothing-to-100)
+
 ## Unreleased
 
 ## To 1.1.0
