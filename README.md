@@ -78,7 +78,6 @@ Docker service names: `$guard->assertSafe('http://mercure/.well-known/mercure', 
 - [Upgrading](docs/UPGRADING.md)
 - [Release](docs/RELEASE.md)
 - [Security](docs/SECURITY.md)
-- [FrankenPHP worker audit](docs/FRANKENPHP-WORKER-AUDIT.md)
 - [Engram](docs/ENGRAM.md)
 - [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
 - [GitHub Spec Kit](docs/SPEC-KIT.md)
@@ -87,6 +86,7 @@ Docker service names: `$guard->assertSafe('http://mercure/.well-known/mercure', 
 
 - [PSR evaluation](docs/PSR.md)
 - [GitHub CI](docs/GITHUB_CI.md)
+- [FrankenPHP worker audit](docs/FRANKENPHP-WORKER-AUDIT.md)
 
 ## Tests and coverage
 

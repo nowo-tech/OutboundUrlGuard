@@ -2,6 +2,13 @@
 
 Register the bundle (Flex does this from `type: symfony-bundle`). Inject `Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard` (static `allow_private`) or `RuntimeOutboundUrlGuard` (`allow_private` read from a resolver on every call).
 
+## Table of contents
+
+- [Webhooks and other public callbacks](#webhooks-and-other-public-callbacks)
+- [Hubs on the private network](#hubs-on-the-private-network)
+- [Runtime private-URL switch](#runtime-private-url-switch)
+- [What stays in the application](#what-stays-in-the-application)
+
 ## Webhooks and other public callbacks
 
 ```php

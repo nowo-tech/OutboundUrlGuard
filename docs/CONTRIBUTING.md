@@ -18,6 +18,12 @@ make igor
 make rector-dry
 ```
 
+## Table of contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Git hooks (REQ-GIT-001)](#git-hooks-req-git-001)
+- [Cursor Agent](#cursor-agent)
+
 ## Code of Conduct
 
 This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDUCT.md). By participating, you are expected to uphold it. Please report unacceptable behavior to **hectorfranco@nowo.tech**.
@@ -33,6 +39,8 @@ make check-no-cursor-coauthor
 
 `make setup-hooks` installs `.githooks/commit-msg` (and sets `core.hooksPath` to `.githooks`). Run it once per clone before your first commit.
 If CI fails because trailers are already on the remote, see [GITHUB_CI.md](GITHUB_CI.md) and run `make strip-cursor-coauthor-from-history` before `git push --force-with-lease`.
+
+Maintainers run `make check-no-cursor-coauthor` **after** creating a release commit and **before** `git push` (REQ-GIT-001): an earlier `release-check` run does not cover the release commit itself.
 
 ## Cursor Agent
 

@@ -8,6 +8,16 @@
 | Method | Manual review of every file under `src/`, DI config, and PHPStan FrankenPHP **classic + worker-strict + hardening** |
 | **Verdict** | ✅ **100% compatible** with FrankenPHP worker mode when the kernel is **not** reset between requests |
 
+## Table of contents
+
+- [Execution model assumed](#execution-model-assumed)
+- [Summary](#summary)
+- [Services reviewed](#services-reviewed)
+- [Findings](#findings)
+  - [Closed by design — DNS cannot pin a worker indefinitely](#closed-by-design--dns-cannot-pin-a-worker-indefinitely)
+- [Usage recommendations in worker mode](#usage-recommendations-in-worker-mode)
+- [Re-audit triggers](#re-audit-triggers)
+
 ## Execution model assumed
 
 FrankenPHP worker mode boots the Symfony kernel once per worker and serves many requests with the same container. This audit assumes the **strict** variant used when `reset_kernel` is **false**: the kernel is **not** rebooted between requests, so every shared service, static property, and PHP global that the application mutates can survive from one request to the next.

@@ -1,5 +1,20 @@
 # Security
 
+## Table of contents
+
+- [Scope](#scope)
+- [Attack surface](#attack-surface)
+- [Threat model](#threat-model)
+- [Mitigations](#mitigations)
+- [What the caller must still do](#what-the-caller-must-still-do)
+- [Secrets and cryptography](#secrets-and-cryptography)
+- [Logging](#logging)
+- [Dependencies and updates](#dependencies-and-updates)
+- [Permissions and exposure](#permissions-and-exposure)
+- [Reporting](#reporting)
+- [Release security checklist (12.4.1)](#release-security-checklist-1241)
+- [AI security audit](#ai-security-audit)
+
 ## Scope
 
 This bundle decides whether an outbound `http` or `https` URL is safe to open. It does not send the request, terminate TLS, follow redirects, or store credentials.

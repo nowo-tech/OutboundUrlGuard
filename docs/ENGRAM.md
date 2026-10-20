@@ -2,7 +2,7 @@
 
 Repository-local product spec, GitHub Spec Kit ([SPEC-KIT.md](SPEC-KIT.md)), and `REQ-*` traceability (Makefile, CI) are described in [Spec-driven development](SPEC-DRIVEN-DEVELOPMENT.md).
 
-This repository is prepared for [Engram](https://github.com/nowo-tech/engram) (MCP). `.cursor/mcp.json` starts the `engram` server (`engram mcp`).
+This repository is prepared for [Engram](https://www.engram.fyi/docs) (MCP). `.cursor/mcp.json` starts the `engram` server (`engram mcp`).
 
 Key references:
 
