@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `.scripts/check-no-cursor-coauthor.sh` also runs inside git worktrees (`.git` file instead of directory).
+- `.gitignore`: ignore the local SonarQube coverage directory `/.sonar-coverage/`.
 
 ## [1.2.0] - 2026-10-13
 

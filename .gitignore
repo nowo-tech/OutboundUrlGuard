@@ -12,6 +12,7 @@
 /coverage
 /coverage.xml
 /coverage-php.txt
+/.sonar-coverage/
 
 # PHP tool caches
 /.php-cs-fixer.cache
