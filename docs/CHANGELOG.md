@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dependencies refreshed (Composer and pnpm/npm lock files of the bundle and its demos, campaign 2026-10-19).
 - Documentation: wave-1 REQ compliance — README documentation list order (worker audit under Additional documentation), Engram link fixed, TOCs for long docs, canonical baseline inventory 14/14 with spec-section column.
+- CI: new `phpstan` job runs `composer phpstan` on every push and pull request (REQ-CS-006).
+- `release-check` runs sequentially and starts with `ensure-up` (REQ-MAKE-002).
+
+### Fixed
+
+- `.scripts/check-no-cursor-coauthor.sh` also runs inside git worktrees (`.git` file instead of directory).
 
 ## [1.2.0] - 2026-10-13
 
