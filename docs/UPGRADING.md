@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 1.2.1](#to-121)
 - [To 1.2.0](#to-120)
 - [To 1.1.0](#to-110)
 - [To 1.0.4](#to-104)
@@ -12,6 +13,14 @@
 - [From nothing to 1.0.0](#from-nothing-to-100)
 
 ## Unreleased
+
+## To 1.2.1
+
+From **1.2.0**:
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
 
 ## To 1.2.0
 

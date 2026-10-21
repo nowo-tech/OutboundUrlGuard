@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.2.1] - 2026-10-21](#121---2026-10-21)
 - [[1.2.0] - 2026-10-13](#120---2026-10-13)
 - [[1.1.0] - 2026-10-13](#110---2026-10-13)
 - [[1.0.4] - 2026-10-13](#104---2026-10-13)
@@ -17,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-09-18](#100---2026-09-18)
 
 ## [Unreleased]
+
+## [1.2.1] - 2026-10-21
+
+Dependency refresh, wave-1 docs, PHPStan CI job, release-check starts with ensure-up. See [UPGRADING](UPGRADING.md#to-121).
 
 ### Changed
 
@@ -29,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `.scripts/check-no-cursor-coauthor.sh` also runs inside git worktrees (`.git` file instead of directory).
 - `.gitignore`: ignore the local SonarQube coverage directory `/.sonar-coverage/`.
+
+[1.2.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.2.1
 
 ## [1.2.0] - 2026-10-13
 
@@ -121,6 +128,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.2.1...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0
