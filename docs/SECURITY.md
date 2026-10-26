@@ -61,6 +61,7 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 
 - Pass `max_redirects: 0` (or re-check every redirect). The pin applies to the first host only.
 - Apply the pin: pass `httpClientOptions()` to Symfony HttpClient. If you read `pinHost` / `pinIp` to configure another client (Guzzle, raw curl, a proxy), pin every spelling of the host that client will use (at least `host` and `host.`). Other clients may parse URLs differently from PHP `parse_url()` and Symfony HttpClient (IDNA, backslashes, userinfo); hand them the exact URL string the guard accepted, never a re-built one.
+- Do not send guarded requests through a forward proxy. With `http_proxy` / `https_proxy` / `all_proxy` in the environment or the HttpClient `proxy` option, the pin only applies to the proxy connection and the proxy resolves the target itself (for HTTPS through `CONNECT` too), so DNS rebinding is possible again. Set `proxy: ''` / `no_proxy` for these requests, or enforce the same egress policy at the proxy.
 - Rate-limit URL submissions. With `resolve_dns: true`, each check can start up to three PHP CLI child processes (A, AAAA, and the `gethostbynamel` fallback), each bounded by `dns_timeout`.
 - Do not enable `allow_private` for URLs chosen by untrusted users.
 - Treat `allow_private: true` as an operator opt-in. The same applies to an `allow_private_resolver` service: back it with an admin-only setting, never with request input.
@@ -104,7 +105,7 @@ Confirm before each tag:
 | No public endpoints | N/A |
 | `dns_timeout` limits resolver wait (DoS) | Required |
 | FrankenPHP worker (`reset_kernel: false`) audit | Pass, 2026-09-24. See [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md). |
-| AI security audit (REQ-SEC-004) | Pass, 2026-10-26 re-audit. Overall risk Low after fixes. One Medium (M1) and four Low findings fixed in the next release; no open findings. |
+| AI security audit (REQ-SEC-004) | Pass (good), 2026-10-26 re-audit (fix verification, Low). Overall risk Low after fixes. One Medium (M1) and four Low findings fixed in the next release; no open findings. |
 
 ## AI security audit
 
@@ -120,7 +121,7 @@ Static re-audit of `src/` on **2026-10-26** (v1.2.1, `3d6d2cb`). All findings we
 | L3 | Low | AWS IPv6 metadata `fd00:ec2::254` was not treated as metadata, so it passed with `allow_private: true` or a resolver returning true. | Added to the metadata set (blocked in every mode); NAT64 `64:ff9b::/96` and 6to4 are unwrapped to the embedded IPv4. |
 | L4 | Low | With `resolve_dns: false`, `http://１２７.０.０.１/` (UTS46 maps it to `127.0.0.1`) and `http://[fe80::1%25eth0]/` were accepted as hostnames. | Hosts are IDNA/UTS46-mapped before classification (rejected when no IDNA implementation is available); `%` is rejected. |
 
-Residuals (caller duties, unchanged): set `max_redirects: 0` and apply the pin; rate-limit URL submissions (up to three PHP child processes per check); parser differences with non-Symfony clients (see [What the caller must still do](#what-the-caller-must-still-do)).
+Residuals (caller duties): set `max_redirects: 0` and apply the pin; no forward proxy for guarded requests; rate-limit URL submissions (up to three PHP child processes per check); parser differences with non-Symfony clients (see [What the caller must still do](#what-the-caller-must-still-do)).
 
 ### 2026-09-18 audit
 

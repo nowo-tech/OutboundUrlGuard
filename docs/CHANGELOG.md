@@ -23,6 +23,7 @@ Security hardening from the 2026-10-26 static re-audit. See [UPGRADING](UPGRADIN
 
 ### Security
 
+- `docs/SECURITY.md`: forward proxies (`https_proxy`, the `proxy` option) bypass the DNS pin — new caller duty.
 - **M1** DNS pin now covers the trailing-dot spelling: `httpClientOptions()` returns `resolve` entries for `host` and `host.`. HttpClient keeps the trailing dot in the request host, so `http://rebind.attacker.tld./` used to miss the pin and re-resolve (DNS rebinding).
 - **L1** Every non-globally-reachable address is private (`FILTER_FLAG_GLOBAL_RANGE`): CGNAT `100.64.0.0/10`, benchmarking `198.18.0.0/15`, documentation ranges, `2001::/23`, plus multicast `224.0.0.0/4` / `ff00::/8`, site-local `fec0::/10`, and local-use NAT64 `64:ff9b:1::/48`. DNS answers are classified on their canonical form, so an AAAA answer `::ffff:127.0.0.1` is rejected.
 - **L2** The DNS child process receives the hostname after `--`, so a host starting with `-` is no longer parsed as a PHP CLI option (which made the child fail and the lookup fall back to the in-process resolver, unbounded by `dns_timeout`). Invalid hostname syntax is rejected before any lookup.
