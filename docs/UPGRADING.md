@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 1.3.0](#to-130)
 - [To 1.2.1](#to-121)
 - [To 1.2.0](#to-120)
 - [To 1.1.0](#to-110)
@@ -13,6 +14,14 @@
 - [From nothing to 1.0.0](#from-nothing-to-100)
 
 ## Unreleased
+
+## To 1.3.0
+
+From **1.2.1**:
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
 
 From **1.2.1** — SSRF hardening (2026-10-26 security re-audit). No API changes, but some URLs that 1.2.1 accepted are now rejected (`unsafe` / `UnsafeOutboundUrlException`). Review them if you store webhook URLs:
 
