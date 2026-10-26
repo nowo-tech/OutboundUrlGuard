@@ -140,7 +140,8 @@ class HostnameDnsLookup
     protected function lookupOutput(string $code, array $args, Closure $inProcess): ?string
     {
         if (null !== $this->phpBinary) {
-            $output = $this->execute([$this->phpBinary, '-r', $code, ...$args]);
+            // `--` ends PHP CLI option parsing, so a value starting with `-` stays an argument.
+            $output = $this->execute([$this->phpBinary, '-r', $code, '--', ...$args]);
             if (false !== $output) {
                 return $output;
             }

@@ -36,6 +36,12 @@ use const FILTER_VALIDATE_IP;
  * When `$resolveDns` is false, hostnames are not looked up, so a name whose DNS
  * points at a metadata address is not detected. Only literal addresses and
  * well-known metadata host names are checked in that mode.
+ *
+ * Hosts are classified as Symfony HttpClient will use them: non-ASCII hosts are
+ * IDNA/UTS46-mapped (rejected when no IDNA implementation is available), `%`
+ * (encoded hosts, IPv6 zone IDs) is rejected, and names that are not valid
+ * hostname syntax (for example a label starting with `-`) are rejected before
+ * any DNS lookup.
  */
 final readonly class OutboundUrlGuard
 {
@@ -78,12 +84,25 @@ final readonly class OutboundUrlGuard
             return OutboundUrlDecision::invalid('Outbound URL is not a valid http(s) URL.');
         }
 
-        $host = strtolower(rtrim((string) $parts['host'], '.'));
+        // Classify the host the HTTP client will use: IDNA-mapped, lowercase, no `%`.
+        $host = PrivateNetworkTarget::asciiHost((string) $parts['host']);
+        if (null === $host) {
+            return OutboundUrlDecision::unsafe('Outbound URL host is not allowed.');
+        }
+
+        // One trailing dot (absolute name) is accepted; the DNS pin covers both spellings.
+        if (str_ends_with($host, '.')) {
+            $host = substr($host, 0, -1);
+        }
         if ('' === $host) {
             return OutboundUrlDecision::unsafe('Outbound URL host is not allowed.');
         }
 
         $canonical = PrivateNetworkTarget::canonicalIp($host);
+        if (null === $canonical && !PrivateNetworkTarget::isValidHostName($host)) {
+            return OutboundUrlDecision::unsafe('Outbound URL host is not allowed.');
+        }
+
         if (PrivateNetworkTarget::isCloudMetadataHost($host)
             || (null !== $canonical && PrivateNetworkTarget::isCloudMetadataIp($canonical))
         ) {

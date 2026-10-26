@@ -90,7 +90,7 @@ final class RuntimeOutboundUrlGuardTest extends TestCase
         $resolver = new ToggleResolver();
         $guard = new RuntimeOutboundUrlGuard(new OutboundUrlGuardFactory($resolver, resolveDns: true, dns: $dns));
 
-        self::assertSame(['resolve' => ['public.test' => '1.1.1.1']], $guard->httpClientOptions('https://public.test/hook'));
+        self::assertSame(['resolve' => ['public.test' => '1.1.1.1', 'public.test.' => '1.1.1.1']], $guard->httpClientOptions('https://public.test/hook'));
         self::assertTrue($guard->inspect('http://mercure/hook', resolveDns: false)->isValid());
         self::assertTrue($guard->assertSafe('http://mercure/hook', resolveDns: false)->isValid());
         self::assertSame([], $guard->httpClientOptions('http://mercure/hook', resolveDns: false));

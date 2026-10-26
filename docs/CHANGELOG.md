@@ -19,6 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Security hardening from the 2026-10-26 static re-audit. See [UPGRADING](UPGRADING.md#unreleased) for URLs that are now rejected.
+
+### Security
+
+- **M1** DNS pin now covers the trailing-dot spelling: `httpClientOptions()` returns `resolve` entries for `host` and `host.`. HttpClient keeps the trailing dot in the request host, so `http://rebind.attacker.tld./` used to miss the pin and re-resolve (DNS rebinding).
+- **L1** Every non-globally-reachable address is private (`FILTER_FLAG_GLOBAL_RANGE`): CGNAT `100.64.0.0/10`, benchmarking `198.18.0.0/15`, documentation ranges, `2001::/23`, plus multicast `224.0.0.0/4` / `ff00::/8`, site-local `fec0::/10`, and local-use NAT64 `64:ff9b:1::/48`. DNS answers are classified on their canonical form, so an AAAA answer `::ffff:127.0.0.1` is rejected.
+- **L2** The DNS child process receives the hostname after `--`, so a host starting with `-` is no longer parsed as a PHP CLI option (which made the child fail and the lookup fall back to the in-process resolver, unbounded by `dns_timeout`). Invalid hostname syntax is rejected before any lookup.
+- **L3** AWS IPv6 instance metadata `fd00:ec2::254` is cloud metadata (blocked in every mode). NAT64 `64:ff9b::/96` and 6to4 `2002::/16` addresses are classified as their embedded IPv4.
+- **L4** Hosts are IDNA/UTS46-mapped before classification (`http://１２７.０.０.１/` is `127.0.0.1`); without ext-intl or `symfony/polyfill-intl-idn` non-ASCII hosts are rejected. Hosts containing `%` (percent-encoding, IPv6 zone IDs) are rejected.
+
+### Fixed
+
+- `PrivateNetworkTarget::isBlockedIp()` classifies IPv4-mapped, NAT64, and 6to4 IPv6 by the embedded IPv4.
+- New helpers `PrivateNetworkTarget::asciiHost()` and `PrivateNetworkTarget::isValidHostName()`.
+- `docs/SECURITY.md`: attack surface, caller duties (rate-limit submissions, pin every host spelling with non-Symfony clients), and the 2026-10-26 audit.
+- Dev: `symfony/polyfill-intl-idn` in `require-dev` so the IDNA path is tested without ext-intl.
+
 ## [1.2.1] - 2026-10-21
 
 Dependency refresh, wave-1 docs, PHPStan CI job, release-check starts with ensure-up. See [UPGRADING](UPGRADING.md#to-121).

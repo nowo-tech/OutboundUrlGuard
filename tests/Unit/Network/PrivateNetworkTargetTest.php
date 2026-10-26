@@ -19,7 +19,8 @@ final class PrivateNetworkTargetTest extends TestCase
         self::assertTrue(PrivateNetworkTarget::isBlockedIp('not-an-ip'));
         self::assertFalse(PrivateNetworkTarget::isBlockedIp('8.8.8.8'));
         self::assertFalse(PrivateNetworkTarget::isBlockedIp('1.1.1.1'));
-        self::assertFalse(PrivateNetworkTarget::isBlockedIp('100.100.100.200'));
+        // CGNAT (100.64.0.0/10) is not globally reachable; Alibaba metadata sits inside it.
+        self::assertTrue(PrivateNetworkTarget::isBlockedIp('100.100.100.200'));
     }
 
     public function testBlocksSensitiveHostnames(): void
@@ -95,6 +96,67 @@ final class PrivateNetworkTargetTest extends TestCase
             'example.123',
         ] as $input) {
             self::assertNull(PrivateNetworkTarget::canonicalIp($input), $input);
+        }
+    }
+
+    public function testBlocksNonGlobalRangesButNotPublicAddresses(): void
+    {
+        foreach ([
+            '100.64.0.1',
+            '100.127.255.254',
+            '224.0.0.1',
+            '239.255.255.250',
+            '198.18.0.1',
+            '203.0.113.1',
+            '::ffff:127.0.0.1',
+            '::ffff:100.64.0.1',
+            '64:ff9b::7f00:1',
+            '64:ff9b:1::1',
+            '2002:a00:1::1',
+            'ff02::1',
+            'ff0e::1',
+            'fec0::1',
+            'fd00:ec2::254',
+            '2001::1',
+        ] as $ip) {
+            self::assertTrue(PrivateNetworkTarget::isBlockedIp($ip), $ip);
+        }
+
+        foreach (['8.8.8.8', '1.1.1.1', '100.63.255.255', '100.128.0.1', '223.255.255.254', '2606:4700:4700::1111', '64:ff9b::808:808', '2002:808:808::1'] as $ip) {
+            self::assertFalse(PrivateNetworkTarget::isBlockedIp($ip), $ip);
+        }
+    }
+
+    public function testAwsIpv6MetadataAndEmbeddedIpv4(): void
+    {
+        self::assertTrue(PrivateNetworkTarget::isCloudMetadataIp('fd00:ec2::254'));
+        self::assertTrue(PrivateNetworkTarget::isCloudMetadataIp('[fd00:0ec2:0000::0254]'));
+        self::assertTrue(PrivateNetworkTarget::isCloudMetadataIp('64:ff9b::a9fe:a9fe'));
+        self::assertFalse(PrivateNetworkTarget::isCloudMetadataIp('fd00:ec2::253'));
+        self::assertSame('127.0.0.1', PrivateNetworkTarget::canonicalIp('64:ff9b::7f00:1'));
+        self::assertSame('127.0.0.1', PrivateNetworkTarget::canonicalIp('2002:7f00:1::1'));
+        self::assertSame('64:ff9b:1::1', PrivateNetworkTarget::canonicalIp('64:ff9b:1::1'));
+    }
+
+    public function testAsciiHostAndHostnameSyntax(): void
+    {
+        self::assertSame('example.com', PrivateNetworkTarget::asciiHost('Example.COM'));
+        self::assertSame('127.0.0.1', PrivateNetworkTarget::asciiHost("\u{FF11}\u{FF12}\u{FF17}.\u{FF10}.\u{FF10}.\u{FF11}"));
+        self::assertSame('xn--bcher-kva.example', PrivateNetworkTarget::asciiHost("B\u{DC}cher.example"));
+        self::assertNull(PrivateNetworkTarget::asciiHost("b\u{FC}cher.example", false));
+        self::assertNull(PrivateNetworkTarget::asciiHost("\u{FF11}27.0.0.1", false));
+        self::assertNull(PrivateNetworkTarget::asciiHost("a\u{200D}b.example"));
+        self::assertNull(PrivateNetworkTarget::asciiHost('[fe80::1%25eth0]'));
+        self::assertNull(PrivateNetworkTarget::asciiHost('%31%32%37.0.0.1'));
+        self::assertNull(PrivateNetworkTarget::asciiHost('exa mple.com'));
+        self::assertNull(PrivateNetworkTarget::asciiHost("exa\tmple.com"));
+
+        self::assertTrue(PrivateNetworkTarget::isValidHostName('example.com'));
+        self::assertTrue(PrivateNetworkTarget::isValidHostName('my_service'));
+        self::assertTrue(PrivateNetworkTarget::isValidHostName('a'));
+        self::assertTrue(PrivateNetworkTarget::isValidHostName('xn--bcher-kva.example'));
+        foreach (['', '-h', 'a-', 'a.-b', 'a..b', 'example.com.', '[::1]', 'a=b', str_repeat('a', 64), implode('.', array_fill(0, 64, 'abc'))] as $host) {
+            self::assertFalse(PrivateNetworkTarget::isValidHostName($host), $host);
         }
     }
 }

@@ -14,6 +14,17 @@
 
 ## Unreleased
 
+From **1.2.1** — SSRF hardening (2026-10-26 security re-audit). No API changes, but some URLs that 1.2.1 accepted are now rejected (`unsafe` / `UnsafeOutboundUrlException`). Review them if you store webhook URLs:
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
+- **Behaviour change — now rejected with `allow_private: false`:** CGNAT `100.64.0.0/10` (except Alibaba metadata, already blocked), multicast `224.0.0.0/4` and `ff00::/8`, benchmarking `198.18.0.0/15`, documentation ranges (`192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`), `192.0.0.0/24`, `2001::/23`, `100::/64`, `fec0::/10`, `64:ff9b:1::/48`, and NAT64 / 6to4 / IPv4-mapped IPv6 whose embedded IPv4 is private — as literals or as DNS answers. With `allow_private: true` they still pass.
+- **Behaviour change — rejected in every mode:** AWS IPv6 metadata `fd00:ec2::254` (and NAT64 spellings of metadata); hosts containing `%` (percent-encoded hosts, IPv6 zone IDs); hosts that are not valid hostname syntax (a label starting or ending with `-`, an empty label such as `a..b` or `host..`, a label over 63 characters, or a name over 253 characters); non-ASCII hosts when neither ext-intl nor `symfony/polyfill-intl-idn` is installed. Underscores (Docker service names) are still accepted.
+- Non-ASCII hosts are classified by their IDNA/UTS46 ASCII form, so a fullwidth or ideographic spelling of a private literal is now caught. Install ext-intl or `symfony/polyfill-intl-idn` if you need IDN hosts (Symfony HttpClient needs one of them for such hosts anyway).
+- `httpClientOptions()` now returns two `resolve` entries (`host` and `host.`) for the same pinned IP. If you assert on the exact array, update the expectation. If you read `pinHost` / `pinIp` to configure a non-Symfony client, pin both spellings too.
+
 ## To 1.2.1
 
 From **1.2.0**:

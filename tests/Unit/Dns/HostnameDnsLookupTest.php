@@ -64,6 +64,27 @@ final class HostnameDnsLookupTest extends TestCase
         }
     }
 
+    /**
+     * Sec-004 L2: the lookup arguments follow `--`, so a value starting with `-`
+     * is not parsed as a PHP CLI option (which made the child fail and the
+     * unbounded in-process fallback run).
+     */
+    public function testLookupArgumentsFollowDoubleDash(): void
+    {
+        $script = tempnam(sys_get_temp_dir(), 'dns-argv-');
+        self::assertIsString($script);
+        file_put_contents($script, "#!/bin/sh\nprintf '[\"%s\",\"%s\",\"%s\"]' \"\$1\" \"\$3\" \"\$4\"\n");
+        chmod($script, 0o755);
+
+        try {
+            $lookup = new HostnameDnsLookup(2.0, $script);
+
+            self::assertSame(['-r', '--', '-h'], $lookup->hostByNameL('-h'));
+        } finally {
+            unlink($script);
+        }
+    }
+
     public function testChildProcessIsStoppedWhenTheDeadlineExpires(): void
     {
         $lookup = new HostnameDnsLookup(0.3);

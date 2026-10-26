@@ -25,7 +25,7 @@ final readonly class OutboundUrlDecision
     /**
      * @param string      $result  one of the RESULT_* values ({@see OutboundUrlResult})
      * @param string      $message empty when the URL is valid
-     * @param string|null $pinHost hostname to pin, when DNS resolved
+     * @param string|null $pinHost hostname to pin (lowercase ASCII, without trailing dot), when DNS resolved
      * @param string|null $pinIp   public address to pin, when DNS resolved
      */
     private function __construct(
@@ -78,6 +78,10 @@ final readonly class OutboundUrlDecision
     /**
      * HttpClient options that pin the host to the resolved public address.
      *
+     * The pin is emitted for `host` and `host.`: HttpClient keeps a trailing dot
+     * in the request host and matches `resolve` keys exactly, so pinning only the
+     * dot-less name would let `http://evil.test./` re-resolve (DNS rebinding).
+     *
      * @return array{resolve?: array<string, string>}
      */
     public function httpClientOptions(): array
@@ -86,6 +90,9 @@ final readonly class OutboundUrlDecision
             return [];
         }
 
-        return ['resolve' => [$this->pinHost => $this->pinIp]];
+        return ['resolve' => [
+            $this->pinHost => $this->pinIp,
+            $this->pinHost.'.' => $this->pinIp,
+        ]];
     }
 }
