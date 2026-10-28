@@ -136,8 +136,8 @@ final class PrivateNetworkTarget
         }
 
         $canonical = self::canonicalIp($ip) ?? $ip;
-        // PHPStan models filter_var() as unable to fail here; the range flags do reject.
-        if (false === filter_var( // @phpstan-ignore identical.alwaysFalse
+        // The range flags reject private / reserved addresses.
+        if (false === filter_var(
             $canonical,
             FILTER_VALIDATE_IP,
             FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_GLOBAL_RANGE,
