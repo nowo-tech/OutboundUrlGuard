@@ -7,6 +7,7 @@ nowo_outbound_url_guard:
     resolve_dns: true
     dns_timeout: 2
     php_binary: ~
+    dns_lookup: ~
 ```
 
 | Key | Default | Meaning |
@@ -16,6 +17,7 @@ nowo_outbound_url_guard:
 | `resolve_dns` | `true` | Resolve hostnames and pin the first public address. Set `false` for Docker service names (`mercure`, `php`) that must stay valid without a public DNS record. With `false`, hostnames are not looked up, so a name whose DNS points at a metadata or private address is **not** detected; only literal addresses and known metadata names are checked. |
 | `dns_timeout` | `2` | Seconds allowed for one DNS lookup. The lookup runs in a child PHP CLI process that is stopped when the deadline expires. Minimum `0.1`. |
 | `php_binary` | `null` | PHP CLI used for the DNS child process. `null` auto-detects it with Symfony `PhpExecutableFinder` (`PHP_BINARY` is the server binary under php-fpm or FrankenPHP, not the CLI). `''` disables the child process. When no CLI is found, or the binary cannot run the lookup, DNS runs in-process: it works, but is only bounded by the system resolver timeouts (`/etc/resolv.conf`), not by `dns_timeout`. |
+| `dns_lookup` | `null` | Service id (optional leading `@`) of a `Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface`. Every guard the bundle registers (`OutboundUrlGuard`, `OutboundUrlGuardFactory`, `RuntimeOutboundUrlGuard`) gets its DNS answers from it. `null` uses the bundled `HostnameDnsLookup` (`dns_timeout`, `php_binary`); a custom lookup owns its own timeout. It only supplies answers: the guard still classifies each one, so private, reserved and metadata answers are rejected as before and the guard cannot be switched off this way. Meant for tests with fixed answers. |
 
 Each call can override the boolean defaults:
 
@@ -45,6 +47,40 @@ nowo_outbound_url_guard:
 ```
 
 Then inject `RuntimeOutboundUrlGuard` (or `OutboundUrlGuardFactory`). See [Usage](USAGE.md#runtime-private-url-switch).
+
+## Fixed DNS answers in tests
+
+Tests that point webhooks at reserved names (`hooks.example.test`) need an answer without a real resolver. Implement the lookup and set `dns_lookup` in `when@test` only:
+
+```php
+use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface;
+
+final class TestDnsLookup implements HostnameDnsLookupInterface
+{
+    public function dnsGetRecord(string $hostname, int $type): array|false
+    {
+        return DNS_A === $type && str_ends_with($hostname, '.test')
+            ? [['host' => $hostname, 'type' => 'A', 'ip' => '127.0.0.1']]
+            : [];
+    }
+
+    public function hostByNameL(string $hostname): array|false
+    {
+        return false;
+    }
+}
+```
+
+```yaml
+when@test:
+    services:
+        App\Tests\Support\TestDnsLookup: ~
+    nowo_outbound_url_guard:
+        allow_private: true # the answer above is loopback; metadata stays blocked
+        dns_lookup: App\Tests\Support\TestDnsLookup
+```
+
+A subclass of `HostnameDnsLookup` also works (it implements the interface). Autowiring `HostnameDnsLookupInterface` returns the configured lookup.
 
 ## Timeout hierarchy (FrankenPHP / FPM)
 

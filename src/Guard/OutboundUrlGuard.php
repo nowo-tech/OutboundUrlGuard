@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\OutboundUrlGuardBundle\Guard;
 
 use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup;
+use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface;
 use Nowo\OutboundUrlGuardBundle\Exception\UnsafeOutboundUrlException;
 use Nowo\OutboundUrlGuardBundle\Network\PrivateNetworkTarget;
 
@@ -46,14 +47,14 @@ use const FILTER_VALIDATE_IP;
 final readonly class OutboundUrlGuard
 {
     /**
-     * @param bool              $allowPrivate when true, loopback and RFC1918 are allowed; metadata stays blocked (DNS answers only when resolving)
-     * @param bool              $resolveDns   when true, hostnames are resolved and pinned
-     * @param HostnameDnsLookup $dns          DNS seam (timeout lives on the lookup)
+     * @param bool                       $allowPrivate when true, loopback and RFC1918 are allowed; metadata stays blocked (DNS answers only when resolving)
+     * @param bool                       $resolveDns   when true, hostnames are resolved and pinned
+     * @param HostnameDnsLookupInterface $dns          DNS seam (timeout lives on the lookup)
      */
     public function __construct(
         private bool $allowPrivate = false,
         private bool $resolveDns = true,
-        private HostnameDnsLookup $dns = new HostnameDnsLookup(),
+        private HostnameDnsLookupInterface $dns = new HostnameDnsLookup(),
     ) {
     }
 

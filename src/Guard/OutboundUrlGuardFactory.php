@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\OutboundUrlGuardBundle\Guard;
 
 use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup;
+use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface;
 
 /**
  * Builds an {@see OutboundUrlGuard} whose `allowPrivate` default is read from the resolver at creation time.
@@ -21,12 +22,12 @@ final readonly class OutboundUrlGuardFactory
     /**
      * @param AllowPrivateResolverInterface $allowPrivateResolver read on every {@see create()} call
      * @param bool                          $resolveDns           value of `resolve_dns`
-     * @param HostnameDnsLookup             $dns                  shared DNS lookup service (`dns_timeout`, `php_binary`)
+     * @param HostnameDnsLookupInterface    $dns                  shared DNS lookup service (`dns_lookup`, or the bundled one with `dns_timeout` / `php_binary`)
      */
     public function __construct(
         private AllowPrivateResolverInterface $allowPrivateResolver,
         private bool $resolveDns = true,
-        private HostnameDnsLookup $dns = new HostnameDnsLookup(),
+        private HostnameDnsLookupInterface $dns = new HostnameDnsLookup(),
     ) {
     }
 

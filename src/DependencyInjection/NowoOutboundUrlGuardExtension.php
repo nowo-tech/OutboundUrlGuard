@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\OutboundUrlGuardBundle\DependencyInjection;
 
+use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup;
 use Nowo\OutboundUrlGuardBundle\Guard\ConfiguredAllowPrivateResolver;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
@@ -21,6 +22,11 @@ final class NowoOutboundUrlGuardExtension extends Extension
      * Private alias that the factory receives: the configured resolver, or the static default.
      */
     public const ALLOW_PRIVATE_RESOLVER_ALIAS = Configuration::ALIAS.'.allow_private_resolver';
+
+    /**
+     * Private alias that every registered guard receives as its DNS lookup: `dns_lookup`, or the bundled lookup.
+     */
+    public const DNS_LOOKUP_ALIAS = Configuration::ALIAS.'.dns_lookup';
 
     /**
      * Loads services and publishes the safe defaults as container parameters.
@@ -43,6 +49,11 @@ final class NowoOutboundUrlGuardExtension extends Extension
             ? ConfiguredAllowPrivateResolver::class
             : ltrim((string) $config['allow_private_resolver'], '@');
         $container->setAlias(self::ALLOW_PRIVATE_RESOLVER_ALIAS, new Alias($resolverId, false));
+
+        $dnsLookupId = null === $config['dns_lookup']
+            ? HostnameDnsLookup::class
+            : ltrim((string) $config['dns_lookup'], '@');
+        $container->setAlias(self::DNS_LOOKUP_ALIAS, new Alias($dnsLookupId, false));
     }
 
     /**

@@ -32,7 +32,7 @@ use function json_encode;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-class HostnameDnsLookup
+class HostnameDnsLookup implements HostnameDnsLookupInterface
 {
     /** PHP CLI used for bounded lookups; null runs lookups in-process. */
     private readonly ?string $phpBinary;

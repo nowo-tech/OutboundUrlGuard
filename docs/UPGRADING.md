@@ -15,6 +15,18 @@
 
 ## Unreleased
 
+No action required: the default (`dns_lookup: null`) keeps the bundled DNS lookup and every check as before.
+
+Tests that redefined `OutboundUrlGuardFactory` (or `OutboundUrlGuard`) only to inject a fake `HostnameDnsLookup` can drop that override and set the option instead:
+
+```yaml
+when@test:
+    nowo_outbound_url_guard:
+        dns_lookup: App\Tests\Support\TestHostnameDnsLookup # implements HostnameDnsLookupInterface (or extends HostnameDnsLookup)
+```
+
+Code that type-hinted `HostnameDnsLookup` to get the guards' lookup should type-hint `HostnameDnsLookupInterface` to receive the configured one.
+
 ## To 1.3.0
 
 From **1.2.1**:

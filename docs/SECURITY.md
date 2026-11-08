@@ -22,7 +22,8 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 ## Attack surface
 
 - The URL string passed to `OutboundUrlGuard` (often a webhook or callback chosen by a user), in particular its host: trailing dots, non-ASCII (IDNA) spellings, percent signs, IPv6 zone IDs, and IPv6 forms that embed an IPv4 address.
-- Bundle config: `allow_private`, `allow_private_resolver`, `resolve_dns`, `dns_timeout`, `php_binary`.
+- Bundle config: `allow_private`, `allow_private_resolver`, `resolve_dns`, `dns_timeout`, `php_binary`, `dns_lookup`.
+- The host `HostnameDnsLookupInterface` service, when `dns_lookup` is configured (it supplies the DNS answers).
 - The host `AllowPrivateResolverInterface` service, when configured (its answer switches private targets on for `RuntimeOutboundUrlGuard` / `OutboundUrlGuardFactory`).
 - DNS answers for hostnames when `resolve_dns` is true.
 - The DNS child process: up to three short-lived PHP CLI processes per check (A, AAAA, and the `gethostbynamel` fallback), each started with the hostname as an argument after `--`.
@@ -55,6 +56,7 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 - DNS answers that include any private, reserved, or metadata address fail closed. A public answer is pinned (IPv4 preferred) and returned as HttpClient `resolve`.
 - `dns_timeout` (default 2 seconds) stops the DNS child process when the deadline expires. The worker does not call `ini_set()`. The child is the PHP CLI found by `PhpExecutableFinder` (or `php_binary`) and receives the hostname after `--`, so it is never parsed as a CLI option; when none is usable, the lookup runs in-process and is bounded only by the system resolver timeouts.
 - `allow_private_resolver` only replaces the private-network switch. Metadata checks run before it is consulted, so a resolver returning true never unblocks metadata. The resolver is read on every call: there is no cached value that outlives a request in worker mode.
+- `dns_lookup` (default `null` = the bundled lookup) only replaces where DNS answers come from. Every answer still goes through the same private, reserved and metadata checks before it is pinned, a lookup with no answer fails closed, and URL-literal checks never consult it, so a custom lookup cannot allow a private or metadata target nor switch the guard off. It is a test seam: a production lookup is trusted host code and owns its own timeout (`dns_timeout` applies to the bundled lookup only).
 - Defaults are deny-private and resolve-dns. Unknown config keys fail container compilation.
 
 ## What the caller must still do
@@ -64,6 +66,7 @@ This bundle decides whether an outbound `http` or `https` URL is safe to open. I
 - Do not send guarded requests through a forward proxy. With `http_proxy` / `https_proxy` / `all_proxy` in the environment or the HttpClient `proxy` option, the pin only applies to the proxy connection and the proxy resolves the target itself (for HTTPS through `CONNECT` too), so DNS rebinding is possible again. Set `proxy: ''` / `no_proxy` for these requests, or enforce the same egress policy at the proxy.
 - Rate-limit URL submissions. With `resolve_dns: true`, each check can start up to three PHP CLI child processes (A, AAAA, and the `gethostbynamel` fallback), each bounded by `dns_timeout`.
 - Do not enable `allow_private` for URLs chosen by untrusted users.
+- Leave `dns_lookup` unset outside tests. A host lookup that returns attacker-chosen public addresses changes where the request goes (the pin follows its answer); back it with a real resolver, never with request input.
 - Treat `allow_private: true` as an operator opt-in. The same applies to an `allow_private_resolver` service: back it with an admin-only setting, never with request input.
 - With `resolve_dns: false` hostnames are not looked up, so a hostname whose DNS answer is a metadata or private address is **not** detected. Use it only for trusted names (Docker service names) and keep the HTTP client from reaching metadata at the network layer.
 - Set HTTP connect/total timeouts and a response size limit on the HTTP client. This bundle does not open the connection.
