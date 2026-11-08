@@ -20,6 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `dns_lookup` option: service id of a new `Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface` that every registered guard (`OutboundUrlGuard`, `OutboundUrlGuardFactory`, `RuntimeOutboundUrlGuard`) uses for DNS answers, so tests can return fixed answers without redefining bundle services. Default `null` keeps the bundled `HostnameDnsLookup`. The guard still classifies every answer (private, reserved, metadata), so the option cannot disable it. See [SECURITY](SECURITY.md#mitigations).
+
+### Changed
+
+- DNS answers (bundled or custom lookup) are kept only when they are real IP addresses, and the canonical IP is
+  pinned (the IPv4 inside an IPv4-mapped, NAT64 or 6to4 answer). With `allow_private: true` a non-IP string could
+  previously be pinned as the address (audit IL-L1). A lookup that throws now gives an `unsafe` decision instead of
+  an exception (IL-I1), and a `dns_lookup` service of the wrong class fails the container compile (IL-I2).
+- `OutboundUrlGuard` and `OutboundUrlGuardFactory` accept any `HostnameDnsLookupInterface` (`HostnameDnsLookup` implements it). Autowiring the interface returns the configured lookup.
+
 ## [1.3.0] - 2026-10-26
 
 SSRF hardening from the 2026-10-26 security re-audit: DNS pin covers trailing-dot hosts, non-global ranges blocked, DNS child argv hardened, AWS IPv6 metadata, disguised literals rejected. See [UPGRADING](UPGRADING.md#to-130).

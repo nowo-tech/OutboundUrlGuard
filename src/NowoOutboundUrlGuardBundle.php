@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\OutboundUrlGuardBundle;
 
+use Nowo\OutboundUrlGuardBundle\DependencyInjection\Compiler\DnsLookupClassPass;
 use Nowo\OutboundUrlGuardBundle\DependencyInjection\NowoOutboundUrlGuardExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -16,6 +18,15 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class NowoOutboundUrlGuardBundle extends Bundle
 {
+    /**
+     * Registers the `dns_lookup` class check.
+     */
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+        $container->addCompilerPass(new DnsLookupClassPass());
+    }
+
     /**
      * Registers the bundle extension explicitly so the alias stays stable.
      */

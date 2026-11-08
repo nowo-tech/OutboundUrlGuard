@@ -8,11 +8,15 @@ services:
             $timeoutSeconds: '%nowo_outbound_url_guard.dns_timeout%'
             $phpBinary: '%nowo_outbound_url_guard.php_binary%'
 
+    # Autowiring a HostnameDnsLookupInterface gets the lookup the guards use (dns_lookup, or the bundled one).
+    Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface: '@nowo_outbound_url_guard.dns_lookup'
+
     Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuard:
         public: true
         arguments:
             $allowPrivate: '%nowo_outbound_url_guard.allow_private%'
             $resolveDns: '%nowo_outbound_url_guard.resolve_dns%'
+            $dns: '@nowo_outbound_url_guard.dns_lookup'
 
     # Default resolver: the static allow_private value. The extension points the
     # nowo_outbound_url_guard.allow_private_resolver alias at allow_private_resolver when set.
@@ -25,6 +29,7 @@ services:
         arguments:
             $allowPrivateResolver: '@nowo_outbound_url_guard.allow_private_resolver'
             $resolveDns: '%nowo_outbound_url_guard.resolve_dns%'
+            $dns: '@nowo_outbound_url_guard.dns_lookup'
 
     Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard:
         public: true

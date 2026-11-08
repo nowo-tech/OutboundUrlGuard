@@ -50,6 +50,7 @@ nowo_outbound_url_guard:
     resolve_dns: true
     dns_timeout: 2.0
     php_binary: ~ # auto-detect the PHP CLI for bounded DNS lookups
+    dns_lookup: ~ # HostnameDnsLookupInterface service id (tests); null = bundled lookup
 ```
 
 Full key list: [Configuration](docs/CONFIGURATION.md).
