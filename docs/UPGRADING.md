@@ -25,6 +25,10 @@ when@test:
         dns_lookup: App\Tests\Support\TestHostnameDnsLookup # implements HostnameDnsLookupInterface (or extends HostnameDnsLookup)
 ```
 
+A custom lookup must return real IP addresses (anything else is dropped; no usable answer means "could not be
+resolved") and should return `false` on errors; an exception is caught and treated as unresolved. An answer such as
+`::ffff:93.184.216.34` is now pinned as `93.184.216.34`.
+
 Code that type-hinted `HostnameDnsLookup` to get the guards' lookup should type-hint `HostnameDnsLookupInterface` to receive the configured one.
 
 ## To 1.3.0

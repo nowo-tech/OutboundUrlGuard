@@ -8,6 +8,7 @@ use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup;
 use Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface;
 use Nowo\OutboundUrlGuardBundle\Exception\UnsafeOutboundUrlException;
 use Nowo\OutboundUrlGuardBundle\Network\PrivateNetworkTarget;
+use Throwable;
 
 use function in_array;
 use function is_array;
@@ -180,6 +181,57 @@ final readonly class OutboundUrlGuard
      */
     private function resolveAndPin(string $host, bool $allowPrivate): OutboundUrlDecision
     {
+        try {
+            $candidates = $this->lookUp($host);
+        } catch (Throwable) {
+            // A failing lookup (a custom `dns_lookup` may throw) fails closed, without throwing out of inspect().
+            return OutboundUrlDecision::unsafe('Outbound URL host could not be resolved.');
+        }
+
+        // Only real IP addresses are classified and pinned: anything else in an answer (a host name, an
+        // inet_aton form, a bracketed literal) is dropped, so a non-IP string can never become the pin.
+        $ips = [];
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && false !== filter_var($candidate, FILTER_VALIDATE_IP)) {
+                $ips[] = PrivateNetworkTarget::canonicalIp($candidate) ?? $candidate;
+            }
+        }
+
+        if ([] === $ips) {
+            return OutboundUrlDecision::unsafe('Outbound URL host could not be resolved.');
+        }
+
+        $acceptedIps = [];
+        foreach (array_values(array_unique($ips)) as $ip) {
+            if (!$allowPrivate && (PrivateNetworkTarget::isBlockedIp($ip) || PrivateNetworkTarget::isCloudMetadataIp($ip))) {
+                return OutboundUrlDecision::unsafe('Outbound URL resolves to a private address.');
+            }
+            if (PrivateNetworkTarget::isCloudMetadataIp($ip)) {
+                return OutboundUrlDecision::unsafe('Outbound URL must not target cloud metadata.');
+            }
+            $acceptedIps[] = $ip;
+        }
+
+        $pinIp = $acceptedIps[0];
+        foreach ($acceptedIps as $ip) {
+            if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $pinIp = $ip;
+                break;
+            }
+        }
+
+        return OutboundUrlDecision::valid($host, $pinIp);
+    }
+
+    /**
+     * Raw answers: A and AAAA records, else the gethostbynamel() fallback. Not validated here.
+     *
+     * @param string $host lowercase hostname
+     *
+     * @return array<mixed>
+     */
+    private function lookUp(string $host): array
+    {
         $candidates = [];
 
         $aRecords = $this->dns->dnsGetRecord($host, DNS_A);
@@ -207,29 +259,6 @@ final readonly class OutboundUrlGuard
             }
         }
 
-        if ([] === $candidates) {
-            return OutboundUrlDecision::unsafe('Outbound URL host could not be resolved.');
-        }
-
-        $acceptedIps = [];
-        foreach (array_values(array_unique($candidates)) as $ip) {
-            if (!$allowPrivate && (PrivateNetworkTarget::isBlockedIp($ip) || PrivateNetworkTarget::isCloudMetadataIp($ip))) {
-                return OutboundUrlDecision::unsafe('Outbound URL resolves to a private address.');
-            }
-            if (PrivateNetworkTarget::isCloudMetadataIp($ip)) {
-                return OutboundUrlDecision::unsafe('Outbound URL must not target cloud metadata.');
-            }
-            $acceptedIps[] = $ip;
-        }
-
-        $pinIp = $acceptedIps[0];
-        foreach ($acceptedIps as $ip) {
-            if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $pinIp = $ip;
-                break;
-            }
-        }
-
-        return OutboundUrlDecision::valid($host, $pinIp);
+        return $candidates;
     }
 }

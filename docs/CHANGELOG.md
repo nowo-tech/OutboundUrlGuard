@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- DNS answers (bundled or custom lookup) are kept only when they are real IP addresses, and the canonical IP is
+  pinned (the IPv4 inside an IPv4-mapped, NAT64 or 6to4 answer). With `allow_private: true` a non-IP string could
+  previously be pinned as the address (audit IL-L1). A lookup that throws now gives an `unsafe` decision instead of
+  an exception (IL-I1), and a `dns_lookup` service of the wrong class fails the container compile (IL-I2).
 - `OutboundUrlGuard` and `OutboundUrlGuardFactory` accept any `HostnameDnsLookupInterface` (`HostnameDnsLookup` implements it). Autowiring the interface returns the configured lookup.
 
 ## [1.3.0] - 2026-10-26
