@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.4.0] - 2026-11-08](#140---2026-11-08)
 - [[1.3.0] - 2026-10-26](#130---2026-10-26)
 - [[1.2.1] - 2026-10-21](#121---2026-10-21)
 - [[1.2.0] - 2026-10-13](#120---2026-10-13)
@@ -20,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-08
+
+`dns_lookup` swaps the DNS lookup (for tests) without weakening any check: only real IP answers are classified and pinned, as their canonical form, and a failing lookup fails closed (Beacon C10). Audit: Appendix IL and Delta IL, Pass.
+
 ### Added
 
 - `dns_lookup` option: service id of a new `Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookupInterface` that every registered guard (`OutboundUrlGuard`, `OutboundUrlGuardFactory`, `RuntimeOutboundUrlGuard`) uses for DNS answers, so tests can return fixed answers without redefining bundle services. Default `null` keeps the bundled `HostnameDnsLookup`. The guard still classifies every answer (private, reserved, metadata), so the option cannot disable it. See [SECURITY](SECURITY.md#mitigations).
@@ -31,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   previously be pinned as the address (audit IL-L1). A lookup that throws now gives an `unsafe` decision instead of
   an exception (IL-I1), and a `dns_lookup` service of the wrong class fails the container compile (IL-I2).
 - `OutboundUrlGuard` and `OutboundUrlGuardFactory` accept any `HostnameDnsLookupInterface` (`HostnameDnsLookup` implements it). Autowiring the interface returns the configured lookup.
+
+[1.4.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.4.0
 
 ## [1.3.0] - 2026-10-26
 
@@ -165,6 +172,6 @@ Dependency refresh, wave-1 docs, PHPStan CI job, release-check starts with ensur
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.4.0...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0

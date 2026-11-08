@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 1.4.0](#to-140)
 - [To 1.3.0](#to-130)
 - [To 1.2.1](#to-121)
 - [To 1.2.0](#to-120)
@@ -15,7 +16,9 @@
 
 ## Unreleased
 
-No action required: the default (`dns_lookup: null`) keeps the bundled DNS lookup and every check as before.
+## To 1.4.0
+
+From **1.3.0**. No action required: the default (`dns_lookup: null`) keeps the bundled DNS lookup and every check as before.
 
 Tests that redefined `OutboundUrlGuardFactory` (or `OutboundUrlGuard`) only to inject a fake `HostnameDnsLookup` can drop that override and set the option instead:
 
