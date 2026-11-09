@@ -8,6 +8,7 @@ Register the bundle (Flex does this from `type: symfony-bundle`). Inject `Nowo\O
 - [Hubs on the private network](#hubs-on-the-private-network)
 - [Runtime private-URL switch](#runtime-private-url-switch)
 - [What stays in the application](#what-stays-in-the-application)
+- [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
 
 ## Webhooks and other public callbacks
 
@@ -49,3 +50,49 @@ $runtimeGuard->assertSafe($hubUrl, resolveDns: false);
 ## What stays in the application
 
 The bundle does not read your settings store: expose it through `AllowPrivateResolverInterface`, or pass `allowPrivate: true` only when an operator has opted in. It does not send the request.
+
+## Using it from a DDD / hexagonal application
+
+The bundle is an **infrastructure** policy: it has no entities, no Doctrine mapping, no events and no host types in
+its API. Keep it out of the domain and call it from the adapter that opens the socket.
+
+- Define your own port in the domain or application layer (for example `OutboundUrlPolicy` or
+  `WebhookUrlValidator`) and implement it with `OutboundUrlGuard` or `RuntimeOutboundUrlGuard`.
+- Map `OutboundUrlDecision` (`isValid()`, `result`, `message`) to your own result type; do not let it cross into the
+  domain. `UnsafeOutboundUrlException` is an `InvalidArgumentException`.
+- An operator "allow private URLs" setting stays in your settings store: expose it through
+  `AllowPrivateResolverInterface` and set `allow_private_resolver`.
+- Fixed DNS answers for tests: implement `HostnameDnsLookupInterface` and set `dns_lookup`, or build
+  `new OutboundUrlGuard(dns: $fakeLookup)` directly.
+
+```php
+namespace App\Infrastructure\Http;
+
+use App\Application\Webhook\WebhookUrlPolicy;           // your port
+use Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard;
+
+final class GuardedWebhookUrlPolicy implements WebhookUrlPolicy
+{
+    public function __construct(private RuntimeOutboundUrlGuard $guard) {}
+
+    public function rejectionReason(string $url): ?string
+    {
+        $decision = $this->guard->inspect($url);
+
+        return $decision->isValid() ? null : $decision->message;
+    }
+
+    /** @return array<string, mixed> HttpClient options for the adapter that sends the request */
+    public function requestOptions(string $url): array
+    {
+        return $this->guard->httpClientOptions($url) + ['max_redirects' => 0];
+    }
+}
+```
+
+Known limitations:
+
+- There is no guard interface yet: your adapter type-hints the final `OutboundUrlGuard` or `RuntimeOutboundUrlGuard`,
+  which have slightly different `inspect()` signatures.
+- `OutboundUrlDecision::$result` is a string (`valid`, `invalid`, `unsafe`); compare with the `RESULT_*` constants.
+- No event is dispatched when a URL is rejected; log it in your adapter if you need an audit trail.
