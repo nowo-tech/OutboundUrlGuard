@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Docs: new USAGE section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).
+
 ## [1.4.0] - 2026-11-08
 
 `dns_lookup` swaps the DNS lookup (for tests) without weakening any check: only real IP answers are classified and pinned, as their canonical form, and a failing lookup fails closed (Beacon C10). Audit: Appendix IL and Delta IL, Pass.
