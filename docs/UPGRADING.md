@@ -4,6 +4,7 @@
 
 - [Unreleased](#unreleased)
 - [To 1.5.0](#to-150)
+- [To 1.5.0](#to-150-1)
 - [To 1.4.0](#to-140)
 - [To 1.3.0](#to-130)
 - [To 1.2.1](#to-121)
@@ -16,6 +17,14 @@
 - [From nothing to 1.0.0](#from-nothing-to-100)
 
 ## Unreleased
+
+## To 1.5.0
+
+From **1.4.0**:
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
 
 ## To 1.5.0
 

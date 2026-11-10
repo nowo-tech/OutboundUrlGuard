@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[1.5.0] - 2026-11-10](#150---2026-11-10)
 - [[1.4.0] - 2026-11-08](#140---2026-11-08)
 - [[1.3.0] - 2026-10-26](#130---2026-10-26)
 - [[1.2.1] - 2026-10-21](#121---2026-10-21)
@@ -21,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-10
+
 Target: 1.5.0 (DDD P2). See [UPGRADING](UPGRADING.md#to-150).
 
 ### Added
@@ -32,6 +35,8 @@ Target: 1.5.0 (DDD P2). See [UPGRADING](UPGRADING.md#to-150).
 ### Changed
 
 - Docs: new USAGE section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).
+
+[1.5.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.5.0
 
 ## [1.4.0] - 2026-11-08
 
@@ -184,6 +189,6 @@ Dependency refresh, wave-1 docs, PHPStan CI job, release-check starts with ensur
 - AI security audit recorded **2026-09-18**: Pass (good), overall risk Low. No open Critical or High findings.
 - CI fails on direct Symfony deprecations (`SYMFONY_DEPRECATIONS_HELPER=max[direct]=0`) and runs `composer audit --locked`.
 
-[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/nowo-tech/OutboundUrlGuard/compare/v1.5.0...HEAD
 [1.0.1]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.1
 [1.0.0]: https://github.com/nowo-tech/OutboundUrlGuard/releases/tag/v1.0.0
