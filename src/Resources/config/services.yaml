@@ -33,3 +33,8 @@ services:
 
     Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard:
         public: true
+
+    # The policy as a port (1.5): type-hint the interface; alias it to your own service to replace the policy.
+    Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuardInterface:
+        alias: Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard
+        public: true

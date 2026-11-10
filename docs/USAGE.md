@@ -57,23 +57,28 @@ The bundle is an **infrastructure** policy: it has no entities, no Doctrine mapp
 its API. Keep it out of the domain and call it from the adapter that opens the socket.
 
 - Define your own port in the domain or application layer (for example `OutboundUrlPolicy` or
-  `WebhookUrlValidator`) and implement it with `OutboundUrlGuard` or `RuntimeOutboundUrlGuard`.
+  `WebhookUrlValidator`) and implement it with `OutboundUrlGuardInterface` (since 1.5). The container alias points at
+  `RuntimeOutboundUrlGuard`, which reads `allow_private` through `allow_private_resolver` (the static `allow_private`
+  value when none is set), so it answers like `OutboundUrlGuard` with the same configuration. Alias the interface to
+  your own service to replace the policy. `OutboundUrlGuard` itself does not implement the interface: its second
+  argument is `$allowPrivate`, not `$resolveDns`.
 - Map `OutboundUrlDecision` (`isValid()`, `result`, `message`) to your own result type; do not let it cross into the
   domain. `UnsafeOutboundUrlException` is an `InvalidArgumentException`.
 - An operator "allow private URLs" setting stays in your settings store: expose it through
   `AllowPrivateResolverInterface` and set `allow_private_resolver`.
 - Fixed DNS answers for tests: implement `HostnameDnsLookupInterface` and set `dns_lookup`, or build
-  `new OutboundUrlGuard(dns: $fakeLookup)` directly.
+  `new OutboundUrlGuard(dns: $fakeLookup)` directly. Without the container, the interface is
+  `new RuntimeOutboundUrlGuard(new OutboundUrlGuardFactory(new ConfiguredAllowPrivateResolver(false), dns: $fakeLookup))`.
 
 ```php
 namespace App\Infrastructure\Http;
 
 use App\Application\Webhook\WebhookUrlPolicy;           // your port
-use Nowo\OutboundUrlGuardBundle\Guard\RuntimeOutboundUrlGuard;
+use Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuardInterface;
 
 final class GuardedWebhookUrlPolicy implements WebhookUrlPolicy
 {
-    public function __construct(private RuntimeOutboundUrlGuard $guard) {}
+    public function __construct(private OutboundUrlGuardInterface $guard) {}
 
     public function rejectionReason(string $url): ?string
     {
@@ -92,7 +97,5 @@ final class GuardedWebhookUrlPolicy implements WebhookUrlPolicy
 
 Known limitations:
 
-- There is no guard interface yet: your adapter type-hints the final `OutboundUrlGuard` or `RuntimeOutboundUrlGuard`,
-  which have slightly different `inspect()` signatures.
 - `OutboundUrlDecision::$result` is a string (`valid`, `invalid`, `unsafe`); compare with the `RESULT_*` constants.
 - No event is dispatched when a URL is rejected; log it in your adapter if you need an audit trail.
