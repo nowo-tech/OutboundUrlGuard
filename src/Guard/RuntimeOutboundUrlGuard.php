@@ -16,7 +16,7 @@ use Nowo\OutboundUrlGuardBundle\Exception\UnsafeOutboundUrlException;
  * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
  * @copyright 2026 Nowo.tech
  */
-final readonly class RuntimeOutboundUrlGuard
+final readonly class RuntimeOutboundUrlGuard implements OutboundUrlGuardInterface
 {
     /**
      * @param OutboundUrlGuardFactory $factory builds a guard from the resolver's current answer

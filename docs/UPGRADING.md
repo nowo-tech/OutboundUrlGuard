@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 1.5.0](#to-150)
 - [To 1.4.0](#to-140)
 - [To 1.3.0](#to-130)
 - [To 1.2.1](#to-121)
@@ -15,6 +16,18 @@
 - [From nothing to 1.0.0](#from-nothing-to-100)
 
 ## Unreleased
+
+## To 1.5.0
+
+From **1.4.0** (target 1.5.0, DDD P2):
+
+```bash
+composer update nowo-tech/outbound-url-guard-bundle
+```
+
+Nothing to change. New `OutboundUrlGuardInterface`, a public alias of `RuntimeOutboundUrlGuard`: prefer it over the
+final guard classes in your type hints. With no `allow_private_resolver`, it behaves like `OutboundUrlGuard`. Calls
+that pass `allowPrivate` per call keep using `OutboundUrlGuard`, which does not implement the interface.
 
 ## To 1.4.0
 

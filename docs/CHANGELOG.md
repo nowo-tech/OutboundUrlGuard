@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target: 1.5.0 (DDD P2). See [UPGRADING](UPGRADING.md#to-150).
+
+### Added
+
+- `Nowo\OutboundUrlGuardBundle\Guard\OutboundUrlGuardInterface` (`inspect()`, `assertSafe()`, `httpClientOptions()`
+  with an optional `$resolveDns`), implemented by `RuntimeOutboundUrlGuard` and registered as a public alias of it.
+  Type-hint it in adapters; alias it to replace the policy.
+
 ### Changed
 
 - Docs: new USAGE section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).
