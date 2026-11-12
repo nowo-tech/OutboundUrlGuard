@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tests
+
+- Kept-alive container test (1,200 calls, alternating resolver outcomes, memory bound) and refreshed `docs/FRANKENPHP-WORKER-AUDIT.md` (REQ-RUNTIME-002).
+
 ## [1.5.0] - 2026-11-10
 
 Target: 1.5.0 (DDD P2). See [UPGRADING](UPGRADING.md#to-150).

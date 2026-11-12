@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | Package | `nowo-tech/outbound-url-guard-bundle` (`symfony-bundle`) |
-| Audited revision | `v1.0.1` (on top of `v1.0.0` / `8ebe256`) |
-| Audit date | 2026-09-24 |
+| Audited revision | `v1.0.1` (on top of `v1.0.0` / `8ebe256`); re-checked against `v1.5.0` on 2026-11-12 |
+| Audit date | 2026-09-24, refreshed 2026-11-12 |
 | Method | Manual review of every file under `src/`, DI config, and PHPStan FrankenPHP **classic + worker-strict + hardening** |
 | **Verdict** | ✅ **100% compatible** with FrankenPHP worker mode when the kernel is **not** reset between requests |
 
@@ -54,6 +54,17 @@ A bundle that is safe under **B** is safe under **A**, under classic FrankenPHP,
 | `Nowo\OutboundUrlGuardBundle\Dns\HostnameDnsLookup` | yes | none (readonly timeout only) | ✅ | ✅ |
 
 Value objects (`OutboundUrlDecision`, `OutboundUrlResult`) are created per call and are `readonly` / enum-like; they are never stored on a service.
+
+## Kept-alive container test
+
+`tests/Integration/Worker/WorkerKeptAliveTest.php::testAlternatingResolverOutcomesNeverLeakAcrossCallsAndMemoryStaysFlat`
+builds ONE container and calls the shared `OutboundUrlGuard` and `RuntimeOutboundUrlGuard` 1,200 times, alternating two
+resolver outcomes (a public address that is pinned, a private address that is refused), never calling
+`services_resetter` or `kernel.reset`. Each decision carries only its own call's pin and verdict, and memory growth
+after warm-up stays under 4 MiB. The services registered by the bundle are stateless (`readonly`; the runtime guard
+builds a fresh guard per call), so the bundle is **safe with kernel reset false**.
+
+Rule 7: the bundle has no Doctrine dependency; it never clears or resets the host's default entity manager.
 
 ## Findings
 
