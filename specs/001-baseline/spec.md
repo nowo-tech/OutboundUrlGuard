@@ -93,7 +93,7 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtim
 
 - **SC-001**: Every production file under `src/` is listed in `code-inventory.md` (**14/14**, `git ls-files src`).
 - **SC-002**: `make test` covers the FR-* paths above.
-- **SC-003**: PHP statement coverage stays at or above 99% (`make test-coverage`).
+- **SC-003**: PHP statement coverage stays at 100% (`make test-coverage`).
 
 ## Validation commands
 

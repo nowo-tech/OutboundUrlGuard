@@ -59,7 +59,7 @@ Mechanical proof is **PHPUnit** + **PHPStan**. There is no separate executable s
 
 | Command | Proves |
 | ------- | ------ |
-| `make test` / `make test-coverage` | Unit + integration behavior (PHP statements >= 99%, target 100%) |
+| `make test` / `make test-coverage` | Unit + integration behavior (PHP statements = 100%) |
 | `make phpstan` / `make cs-check` / `make rector-dry` | Static quality |
 | `make release-check` | Full pre-release gate, including open-PR and co-author checks |
 
