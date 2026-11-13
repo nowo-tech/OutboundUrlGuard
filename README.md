@@ -96,7 +96,7 @@ Docker service names: `$guard->assertSafe('http://mercure/.well-known/mercure', 
 - TS/JS: N/A
 - Python: N/A
 
-`make test-coverage` prints the PHP Lines percentage and fails when Clover statement coverage is below 99%. `make test-coverage-100` requires 100%.
+`make test-coverage` prints the PHP Lines percentage and fails when Clover statement coverage is below 100%. `make test-coverage-100` is the same gate.
 
 ## License
 
