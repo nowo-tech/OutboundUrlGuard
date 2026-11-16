@@ -61,6 +61,7 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtim
 - **FR-BUNDLE-001**: `NowoOutboundUrlGuardBundle` exposes `NowoOutboundUrlGuardExtension`.
 - **FR-DI-001**: The extension loads `services.yaml`, processes the config tree, and publishes `allow_private`, `resolve_dns`, and `dns_timeout`.
 - **FR-DI-002**: Unknown configuration keys fail compilation. Defaults deny private URLs and enable DNS with a 2 second timeout.
+- **FR-DI-003**: `DnsLookupClassPass` fails the container compile when `dns_lookup` names a service whose class does not implement `HostnameDnsLookupInterface` (a factory-built service without a resolvable class is left to the constructor type check).
 
 ### Decision
 
@@ -70,6 +71,7 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtim
 
 ### Guard policy
 
+- **FR-PORT-001**: `OutboundUrlGuardInterface` is the guard as a port (1.5). The container alias points at `RuntimeOutboundUrlGuard`, which answers like `OutboundUrlGuard` with the bundle configuration; adapters type-hint the interface.
 - **FR-GUARD-001**: Empty values and non-http(s) URLs are invalid.
 - **FR-GUARD-002**: Cloud metadata hosts and IPs are unsafe even when private URLs are allowed.
 - **FR-GUARD-003**: With `allow_private`, other targets are valid and DNS is skipped.
@@ -80,6 +82,7 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtim
 ### DNS and network
 
 - **FR-DNS-001**: `HostnameDnsLookup` runs `dns_get_record` and `gethostbynamel` in a child PHP process with `dns_timeout` (`setTimeout` and `setIdleTimeout`) and stops the process on expiry. The class stays extensible for tests. The worker does not call `ini_set()`.
+- **FR-DNS-002**: `HostnameDnsLookupInterface` is the DNS port. Implementations only supply addresses; the guard classifies every answer (private, reserved, metadata) before it pins one, so a custom lookup (`dns_lookup`) cannot allow a private target or switch the guard off.
 - **FR-NET-001**: `PrivateNetworkTarget` canonicalizes dotted IPv4, IPv6, IPv4-mapped IPv6, and decimal/hex 32-bit hosts before private and metadata checks.
 
 ### FrankenPHP worker (`reset_kernel: false`)
@@ -91,7 +94,7 @@ Config root: `nowo_outbound_url_guard`. Main surface: `OutboundUrlGuard`; runtim
 
 ## Success criteria
 
-- **SC-001**: Every production file under `src/` is listed in `code-inventory.md` (**14/14**, `git ls-files src`).
+- **SC-001**: Every production file under `src/` is listed in `code-inventory.md` (**17/17**, `git ls-files src`).
 - **SC-002**: `make test` covers the FR-* paths above.
 - **SC-003**: PHP statement coverage stays at 100% (`make test-coverage`).
 
