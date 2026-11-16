@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Kept-alive container test (1,200 calls, alternating resolver outcomes, memory bound) and refreshed `docs/FRANKENPHP-WORKER-AUDIT.md` (REQ-RUNTIME-002).
 
+### Documentation
+
+- Spec Kit baseline (REQ-SPECKIT-003): `specs/001-baseline` maps the 1.5 ports `OutboundUrlGuardInterface` and `HostnameDnsLookupInterface` and the `DnsLookupClassPass` compile check (17/17 units).
+
 ## [1.5.0] - 2026-11-10
 
 Target: 1.5.0 (DDD P2). See [UPGRADING](UPGRADING.md#to-150).
